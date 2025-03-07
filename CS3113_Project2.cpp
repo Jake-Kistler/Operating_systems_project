@@ -4,6 +4,55 @@
 #include <vector>
 #include <string>
 
+/*
+* Project 3 asks us to change hoow jobs are loaded into memory 
+* Previously, we loaded directlty into the ReadyQueue if memory was aviable 
+* Now, we've been asked to create a NewJobQueue and when there is enough memory we will load them into the readyQueue
+* In the case of not having enough memeory to use we have to options:
+*   1) Wait
+*   2) Coalesce memory (more on that below)
+* We then contiune like normal 
+*
+* Lets say we have 1000 memory cells 
+* Process 1 starts at 0 and has a size of 200 so now there are 800 free blocks to work with
+* process 2 starts at 350 and has a size of 300 
+* process 5 starts at 750 and has a size of 250 
+* 
+* so 0-200 is used there is a gap from 200 - 350 (150 free slots)
+* process 2 starts at 350 and takes 300 cells up so 350-650 is occupied now 
+* Then there is another free block from 650 to 750.
+* we then load process 3 from 750 - 1000 and are now out of memory 
+* 
+* Say we have a new process 4 arrives and needs 180 memory cells to run,
+* We don't have this space in a single cohensive block of memory and will need to 
+* Combine the free blocks into one unit to load process 4 and it would need to wait for memory to free up
+*
+*
+* TO COALESCE:
+* Find our unassigned blocks of memory and combine them into one unit 
+* so tbe block after process 1 but before process 2 is free and so is 
+* the block after process 2 but before process 3 
+* 
+* 150 [gap after process 1] + 100 [gap after process 2] = 250 units of free space 
+* If we make this a cohesvie block we can load process 4 
+*
+* NEW STRUCTURES:
+* new_job_queue<PCB> // this will store the jobs and load them into the readyQueue only when there is enough memory to do so 
+* Dynamic memory allocation handled / monitored by a linked list, each node has the following:
+*   i) int Process_id // the id of the process -1 if free
+*   ii) int start_address // where the block starts
+*   iii) int block_size // size of the block 
+*  
+*/
+
+
+
+
+
+
+
+
+
 // State codes constexp is a form of constants that are type safe (found them here: https://en.cppreference.com/w/cpp/language/constexpr)
 constexpr int STATE_NEW = 1;
 constexpr int STATE_READY = 2;
