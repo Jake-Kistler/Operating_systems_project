@@ -1,491 +1,446 @@
 #include <iostream>
+#include <tuple>
+#include <queue>
 #include <vector>
 #include <string>
-#include <sstream>
-#include <queue>
-#include <limits>
-#include <fstream>
 
-// ------------------------------------------------------------------
-// *** CHANGES FOR PROJECT 2 ***
-// 1) A global CPU clock
-// 2) Reading context_switch_time, CPU_allocated_time from the input
-// 3) Round-robin logic: timeouts, I/O interrupts
-// 4) Logging transitions exactly as required
-// ------------------------------------------------------------------
+// State codes constexp is a form of constants that are type safe (found them here: https://en.cppreference.com/w/cpp/language/constexpr)
+constexpr int STATE_NEW = 1;
+constexpr int STATE_READY = 2;
+constexpr int STATE_RUNNING = 3;
+constexpr int STATE_TERMINATED = 4;
+constexpr int STATE_IOWAITING = 5;
 
-int CPU_clock = 0; 
-int context_switch_time = 2; 
-int CPU_allocated_time = 5; 
-int totalCPUtimeAllProcesses = 0; // Sum of (termination_time – first_run_time) for each process
-
-std::ofstream fout("out.txt"); // For writing to "out.txt"
-
-// ------------------------------------------------------------------
-// Basic PCB structure
-// ------------------------------------------------------------------
+// PCB struct from the project
 struct PCB
 {
     int process_id;
-    int state;             // 0=NEW, 1=READY, 2=RUNNING, 3=IOWAIT, 4=TERMINATED
+    int state;
     int program_counter;
-    int instruction_base;  
+    int instruction_base;
     int data_base;
     int memory_limit;
     int CPU_cycles_used;
     int register_value;
     int max_memory_needed;
     int main_memory_base;
-
-    // For storing instructions read from input (not always required, but used for reference)
+    // Each instruction is [opcode, param1, param2, ...]
     std::vector<std::vector<int>> instructions;
 };
 
-// ------------------------------------------------------------------
-// Function Prototypes
-// ------------------------------------------------------------------
-void loadJobsToMemory(std::queue<PCB> &newJobQueue,std::queue<int> &readyQueue,std::vector<int> &mainMemory,int maxMemory);
+// This structure is a static vector that we will use to compare the opcode and parameters with.
+static std::vector<std::vector<int>> opcodeParamsVector = {
+    {1, 2}, // Compute => 2 params
+    {2, 1}, // Print   => 1 param
+    {3, 2}, // Store   => 2 params
+    {4, 1}, // Load    => 1 param
+};
 
-int executeCPU(int startAddress, std::vector<int> &mainMemory);
+static const int MAX_PID = 10000;
+static int param_off_sets[MAX_PID];
+static int process_start_times[MAX_PID];
 
-void show_main_memory(const std::vector<int> &mainMemory);
+int global_clock = 0;
+bool timeout_occurred = false;
+int context_switch_time, CPU_allocated;
 
-// ------------------------------------------------------------------
-// main
-// ------------------------------------------------------------------
+
+/*
+* This queue is a made of a tuple made of the PCB, int (start address) int, (wait time) and int (Time it entered the I/O queue
+* each entry on the queue is one of these toupls which makes it easy to keep track across the life of the program )
+*/
+std::queue<std::tuple<PCB, int, int, int>> IOWaitingQueue;
+
+std::string stateToString(int state_code);
+
+void loadJobsToMemory(std::queue<PCB> &newJobQueue, std::queue<int> &readyQueue, int *mainMemory, int maxMemory);
+
+int getParamCount(int opcode);
+
+void executeCPU(int startAddress, int *mainMemory);
+
+void checkIOWaitingQueue(std::queue<int> &readyQueue, int *mainMemory);
+
 int main(int argc, char **argv)
 {
-    // 1) Read input: max_memory, context_switch_time, CPU_allocated_time, num_processes
+    // define variables and newJobQueue and readyQueue
     int max_memory, num_processes;
-    std::cin >> max_memory;
-    std::cin >> context_switch_time;
-    std::cin >> CPU_allocated_time;
-    std::cin >> num_processes;
-
-
-    // 2) Prepare data structures
-    std::vector<int> mainMemory(max_memory, -1); 
-    std::queue<int> readyQueue;          
     std::queue<PCB> newJobQueue;
+    std::queue<int> readyQueue;
 
-    // 3) Read each process block from stdin
+    // read in data
+    std::cin >> max_memory >> CPU_allocated >> context_switch_time >> num_processes;
+
+    // build a dynamic array and fill it with -1, changed this because I've come to realize how much hand holding modern programming languages do. Thanks MIPS for opening my eyes
+    int *main_memory = new int[max_memory];
+    for (int i = 0; i < max_memory; i++)
+        main_memory[i] = -1;
+
+    for (int i = 0; i < MAX_PID; i++)
+    {
+        param_off_sets[i] = 0;
+        process_start_times[i] = 0;
+    }
+
+    // Read processes
     for (int i = 0; i < num_processes; i++)
     {
-        std::string line;
-        std::getline(std::cin, line);
+        PCB process;
+        std::cin >> process.process_id >> process.max_memory_needed;
 
-        // Sometimes the line might be empty if there's an extra newline, so skip it
-        if (line.empty())
-        {
-            std::getline(std::cin, line);
-        }
-        std::istringstream ss(line);
+        int num_instructions;
+        std::cin >> num_instructions;
 
-        PCB p;
-        int number_of_instructions;
-        ss >> p.process_id >> p.max_memory_needed >> number_of_instructions;
-        p.state           = 0; // NEW
-        p.program_counter = 0;
-        p.memory_limit    = p.max_memory_needed;
-        p.CPU_cycles_used = 0;
-        p.register_value  = 0;
-        p.main_memory_base = 0; // Will be set in loadJobsToMemory
+        process.state = STATE_NEW;
+        process.memory_limit = process.max_memory_needed;
+        process.program_counter = 0;
+        process.CPU_cycles_used = 0;
+        process.register_value = 0;
 
-        // Read instructions from line
-        for (int j = 0; j < number_of_instructions; j++)
+        std::vector<std::vector<int>> instructions;
+        instructions.reserve(num_instructions); // reverse so we get the first instruction read in to be first
+
+        for (int j = 0; j < num_instructions; j++)
         {
             int opcode;
-            ss >> opcode;
+            std::cin >> opcode;
             std::vector<int> inst;
             inst.push_back(opcode);
 
-            if (opcode == 1) // compute
+            int num_params = getParamCount(opcode);
+            for (int k = 0; k < num_params; k++)
             {
-                int iterations, cycles;
-                ss >> iterations >> cycles;
-                inst.push_back(iterations);
-                inst.push_back(cycles);
+                int param;
+                std::cin >> param;
+                inst.push_back(param);
             }
-            else if (opcode == 2) // print
-            {
-                int cycles;
-                ss >> cycles;
-                inst.push_back(cycles);
-            }
-            else if (opcode == 3) // store
-            {
-                int val, addr;
-                ss >> val >> addr;
-                inst.push_back(val);
-                inst.push_back(addr);
-            }
-            else if (opcode == 4) // load
-            {
-                int addr;
-                ss >> addr;
-                inst.push_back(addr);
-            }
-            p.instructions.push_back(inst);
+            instructions.push_back(inst);
         }
-        newJobQueue.push(p);
+        process.instructions = instructions;
+        newJobQueue.push(process);
     }
 
-    // 4) Load all jobs to main memory
-    loadJobsToMemory(newJobQueue, readyQueue, mainMemory, max_memory);
+    loadJobsToMemory(newJobQueue, readyQueue, main_memory, max_memory);
 
-    // Optional: show main memory to confirm
-    show_main_memory(mainMemory);
+    // Debug: show contents of mainMemory
+    for (int i = 0; i < max_memory; i++)
+    {
+        std::cout << i << " : " << main_memory[i] << "\n";
+    }
 
-    // 5) Additional data structures for round-robin + IO queue
-    std::queue<int> IOWaitingQueue;
-
-    // For tracking the first time each PID enters running
-    std::vector<int> startRunningTime(num_processes+1, -1);
-
-    // 6) Round-robin scheduling loop
+    // CPU + IO loop
     while (!readyQueue.empty() || !IOWaitingQueue.empty())
     {
-        // If the ready queue is empty but we still have processes in IO, CPU idle
-        if (readyQueue.empty() && !IOWaitingQueue.empty())
+        if (!readyQueue.empty())
         {
-            CPU_clock += context_switch_time;
+            int startAddress = readyQueue.front();
+            readyQueue.pop();
 
-            // Move everything from IO to ready (in a naive approach)
-            while (!IOWaitingQueue.empty())
+            executeCPU(startAddress, main_memory);
+
+            if (timeout_occurred)
             {
-                int pcbAddr = IOWaitingQueue.front();
-                IOWaitingQueue.pop();
-
-                mainMemory[pcbAddr + 1] = 1; // ready
-                int pid = mainMemory[pcbAddr];
-
-                std::cout << "Process " << pid << " completed I/O and is moved to ReadyQueue\n";
-                fout << "Process " << pid << " completed I/O and is moved to ReadyQueue\n";
-                readyQueue.push(pcbAddr);
-            }
-            continue;
-        }
-
-        // Otherwise, pop front of readyQueue
-        int pcbStart = readyQueue.front();
-        readyQueue.pop();
-
-        // Context switch overhead
-        CPU_clock += context_switch_time;
-
-        // Mark running
-        mainMemory[pcbStart + 1] = 2; // RUNNING
-        int pid = mainMemory[pcbStart]; // the process ID
-
-        std::cout << "Process " << pid << " has moved to Running." << std::endl;
-        fout << "Process " << pid << " has moved to Running." << std::endl;
-
-
-        // Record time if first time running
-        if (startRunningTime[pid] < 0)
-        {
-            startRunningTime[pid] = CPU_clock;
-        }
-
-        // Execute
-        int rc = executeCPU(pcbStart, mainMemory);
-        // rc: 0=terminated, 1=timeout, 2=IO interrupt
-
-        if (rc == 0)
-        {
-            // Terminated
-            mainMemory[pcbStart + 1] = 4; // state=TERMINATED
-            int endTime = CPU_clock;
-            int begin   = startRunningTime[pid];
-
-            std::cout << "Process " << pid 
-                      << " terminated. Entered running at: " << begin
-                      << ". Terminated at: " << endTime
-                      << ". Total Execution Time: " 
-                      << (endTime - begin) << std::endl;
-
-            fout << "Process " << pid 
-                 << " terminated. Entered running at: " << begin
-                 << ". Terminated at: " << endTime
-                 << ". Total Execution Time: " 
-                 << (endTime - begin) << std::endl;
-
-            totalCPUtimeAllProcesses += (endTime - begin);
-        }
-        else if (rc == 1)
-        {
-            // Timeout
-            std::cout << "Process " << pid << " has a TimeOUT interrupt and is moved to the ReadyQueue.\n";
-            fout << "Process " << pid << " has a TimeOUT interrupt and is moved to the ReadyQueue.\n";
-
-            // Mark ready
-            mainMemory[pcbStart + 1] = 1;
-            readyQueue.push(pcbStart);
-        }
-        else if (rc == 2)
-        {
-            // I/O
-            std::cout << "Process " << pid << " issued an IOInterrupt and is moved to IOWaitingQueue.\n";
-            fout << "Process " << pid << " issued an IOInterrupt and is moved to IOWaitingQueue.\n";
-
-            mainMemory[pcbStart + 1] = 3; // IOWAIT
-            IOWaitingQueue.push(pcbStart);
-        }
-
-    }
-
-    // After all processes are done, we might add a final context switch time if required
-    CPU_clock += context_switch_time;
-
-    std::cout << "All processes complete. Total CPU time used: " << totalCPUtimeAllProcesses << std::endl;
-    fout << "All processes complete. Total CPU time used: " << totalCPUtimeAllProcesses << std::endl;
-
-    return 0;
-}
-
-// ------------------------------------------------------------------
-// executeCPU
-//   runs instructions up to CPU_allocated_time or until
-//   a) process terminates
-//   b) process hits I/O
-//   c) times out
-// Returns code: 
-//   0 => terminated
-//   1 => time-out
-//   2 => IO interrupt
-// ------------------------------------------------------------------
-int executeCPU(int startAddress, std::vector<int> &mainMemory)
-{
-    // Pull PCB fields from mainMemory
-    int pid              = mainMemory[startAddress];
-    int state            = mainMemory[startAddress + 1];
-    int program_counter  = mainMemory[startAddress + 2];
-    int instruction_base = mainMemory[startAddress + 3];
-    int data_base        = mainMemory[startAddress + 4];
-    int memory_limit     = mainMemory[startAddress + 5];
-    int cpu_used         = mainMemory[startAddress + 6];
-    int reg_value        = mainMemory[startAddress + 7];
-    int max_mem_needed   = mainMemory[startAddress + 8];
-    // mainMemory[startAddress + 9] is just the base
-
-    // # instructions
-    int num_instructions = data_base - instruction_base;
-
-    // Track how many CPU ticks used in this time slice
-    int slice_used = 0;
-
-    while (program_counter < num_instructions && slice_used < CPU_allocated_time)
-    {
-        int opcode = mainMemory[instruction_base + program_counter];
-
-        // Retrieve parameters from data segment; minimal approach:
-        int param1 = -1, param2 = -1;
-
-        if (opcode == 1) // compute => 2 params
-        {
-            // param layout: data_base + (program_counter*2) and +1
-            param1 = mainMemory[data_base + (program_counter * 2)];
-            param2 = mainMemory[data_base + (program_counter * 2) + 1];
-        }
-        else if (opcode == 2) // print => 1 param
-        {
-            param1 = mainMemory[data_base + (program_counter)];
-        }
-        else if (opcode == 3) // store => 2 params
-        {
-            param1 = mainMemory[data_base + (program_counter * 2)];
-            param2 = mainMemory[data_base + (program_counter * 2) + 1];
-        }
-        else if (opcode == 4) // load => 1 param
-        {
-            param1 = mainMemory[data_base + (program_counter)];
-        }
-
-        // Execute
-        if (opcode == 1) // compute
-        {
-            // param2 is CPU cycles
-            CPU_clock += param2;
-            slice_used += param2;
-            cpu_used   += param2;
-
-            std::cout << "compute\n";
-            fout << "compute\n";
-        }
-        else if (opcode == 2) // print => IO
-        {
-            CPU_clock   += param1;
-            slice_used  += param1;
-            cpu_used    += param1;
-
-            std::cout << "print\n";
-            fout << "print\n";
-
-            // Save updated PCB
-            mainMemory[startAddress + 2] = program_counter + 1; // next instruction
-            mainMemory[startAddress + 6] = cpu_used;
-            mainMemory[startAddress + 7] = reg_value;
-
-            return 2; // indicates IO
-        }
-        else if (opcode == 3) // store
-        {
-            // store costs 1 CPU cycle
-            CPU_clock++;
-            slice_used++;
-            cpu_used++;
-
-            int storeAddress = instruction_base + param2;
-            if (storeAddress >= instruction_base && storeAddress < (instruction_base + max_mem_needed))
-            {
-                mainMemory[storeAddress] = param1;
-                reg_value = param1;
-                std::cout << "stored\n";
-                fout << "stored\n";
-            }
-            else
-            {
-                std::cout << "Process " << pid  << " store error! address " << storeAddress << "\n";
-                fout << "Process " << pid  << " store error! address " << storeAddress << "\n";
-            }
-        }
-        else if (opcode == 4) // load
-        {
-            // load costs 1 CPU cycle
-            CPU_clock++;
-            slice_used++;
-            cpu_used++;
-
-            int loadAddr = instruction_base + param1;
-            if (loadAddr >= instruction_base && loadAddr < (instruction_base + max_mem_needed))
-            {
-                reg_value = mainMemory[loadAddr];
-                std::cout << "loaded\n";
-                std::cout << "loaded\n";
-            }
-            else
-            {
-                std::cout << "Process " << pid << " load error! address " << loadAddr << "\n";
-                fout << "Process " << pid << " load error! address " << loadAddr << "\n";
+                readyQueue.push(startAddress);
+                timeout_occurred = false;
             }
         }
         else
         {
-            std::cout << "ERROR: invalid opcode " << opcode << " in process " << pid << "\n";
-            fout << "ERROR: invalid opcode " << opcode << " in process " << pid << "\n";
+            global_clock += context_switch_time;
         }
 
-        program_counter++;
-
-        // Timeout check
-        if (slice_used >= CPU_allocated_time)
-        {
-            // Save updated PCB 
-            mainMemory[startAddress + 2] = program_counter;
-            mainMemory[startAddress + 6] = cpu_used;
-            mainMemory[startAddress + 7] = reg_value;
-            return 1; // time-out
-        }
+        checkIOWaitingQueue(readyQueue, main_memory);
     }
 
-    // If we exit loop, we check if the process is done
-    if (program_counter >= num_instructions)
-    {
-        // Mark terminated
-        mainMemory[startAddress + 1] = 4;  // TERMINATED
-        mainMemory[startAddress + 2] = program_counter;
-        mainMemory[startAddress + 6] = cpu_used;
-        mainMemory[startAddress + 7] = reg_value;
-        return 0; // done
-    }
+    global_clock += context_switch_time;
+    std::cout << "Total CPU time used: " << global_clock << "." << "\n";
 
-    // Otherwise we just end because we used up instructions? 
-    // Typically means done, but you might interpret differently.
+    delete[] main_memory; // free memory since we used a dynamically allocated array
     return 0;
 }
 
-// ------------------------------------------------------------------
-// loadJobsToMemory
-//   moves from newJobQueue => mainMemory => readyQueue
-// ------------------------------------------------------------------
-void loadJobsToMemory(std::queue<PCB> &newJobQueue,std::queue<int> &readyQueue,std::vector<int> &mainMemory,int maxMemory)
+// Convert numeric state code to string
+std::string stateToString(int state_code)
 {
-    int current_address = 0;
+    switch (state_code)
+    {
+    case 1:
+        return "NEW";
+    case 2:
+        return "READY";
+    case 3:
+        return "RUNNING";
+    case 4:
+        return "TERMINATED";
+    case 5:
+        return "IOWAITING";
+    }
+    return "UNKNOWN";
+}
 
+void loadJobsToMemory(std::queue<PCB> &newJobQueue, std::queue<int> &readyQueue, int *mainMemory, int maxMemory)
+{
+    int memoryIndex = 0;
     while (!newJobQueue.empty())
     {
-        PCB p = newJobQueue.front();
+        PCB process = newJobQueue.front();
         newJobQueue.pop();
 
-        p.main_memory_base = current_address;
-       
-        p.instruction_base = current_address + 10; // PCB has 10 cells
-
-        // data_base after instructions
-        p.data_base = p.instruction_base + p.instructions.size();
-
-        // Write PCB to main memory
-        mainMemory[current_address + 0] = p.process_id; // ID
-        mainMemory[current_address + 1] = 1;            // state => READY by default
-        mainMemory[current_address + 2] = 0;            
-        mainMemory[current_address + 3] = p.instruction_base; 
-        mainMemory[current_address + 4] = p.data_base;
-        mainMemory[current_address + 5] = p.memory_limit;
-        mainMemory[current_address + 6] = p.CPU_cycles_used;
-        mainMemory[current_address + 7] = p.register_value;
-        mainMemory[current_address + 8] = p.max_memory_needed;
-        mainMemory[current_address + 9] = p.main_memory_base;
-
-        // Then instructions + parameters
-        int instr_addr = p.instruction_base;
-        int data_addr  = p.data_base;
-
-        for (size_t i = 0; i < p.instructions.size(); i++)
+        if (memoryIndex + process.max_memory_needed > maxMemory)
         {
-            const auto &inst = p.instructions[i];
-            int opcode = inst[0];
-            mainMemory[instr_addr++] = opcode;
+            std::cout << "Not enough memory to load Process " << process.process_id << "\n";
+            continue;
+        }
 
-            if (opcode == 1) // compute => {1, iterations, cycles}
+        process.main_memory_base = memoryIndex;
+        process.instruction_base = memoryIndex + 10;
+        process.data_base = process.instruction_base + (int)process.instructions.size();
+
+        mainMemory[memoryIndex + 0] = process.process_id;
+        mainMemory[memoryIndex + 1] = process.state;
+        mainMemory[memoryIndex + 2] = process.program_counter;
+        mainMemory[memoryIndex + 3] = process.instruction_base;
+        mainMemory[memoryIndex + 4] = process.data_base;
+        mainMemory[memoryIndex + 5] = process.memory_limit;
+        mainMemory[memoryIndex + 6] = process.CPU_cycles_used;
+        mainMemory[memoryIndex + 7] = process.register_value;
+        mainMemory[memoryIndex + 8] = process.max_memory_needed;
+        mainMemory[memoryIndex + 9] = process.main_memory_base;
+
+        int writeIndex = process.instruction_base;
+        for (auto &instr : process.instructions)
+        {
+            mainMemory[writeIndex++] = instr[0];
+        }
+
+        for (auto &instr : process.instructions)
+        {
+            for (int j = 1; j < (int)instr.size(); j++)
             {
-                mainMemory[data_addr++] = inst[1];
-                mainMemory[data_addr++] = inst[2];
-            }
-            else if (opcode == 2) // print => {2, cycles}
-            {
-                mainMemory[data_addr++] = inst[1];
-            }
-            else if (opcode == 3) // store => {3, value, address}
-            {
-                mainMemory[data_addr++] = inst[1];
-                mainMemory[data_addr++] = inst[2];
-            }
-            else if (opcode == 4) // load => {4, address}
-            {
-                mainMemory[data_addr++] = inst[1];
+                mainMemory[writeIndex++] = instr[j];
             }
         }
 
-        // Next process: skip over the chunk of memory used by this process
-        // We used 10 for PCB + p.max_memory_needed
-        // That’s the minimal approach to avoid overlap.
-        current_address += (10 + p.max_memory_needed);
-
-        // The process is now READY. We push its base to the readyQueue
-        readyQueue.push(p.main_memory_base);
+        readyQueue.push(process.main_memory_base);
+        memoryIndex = process.instruction_base + process.max_memory_needed;
     }
 }
 
-// ------------------------------------------------------------------
-// show_main_memory
-// ------------------------------------------------------------------
-void show_main_memory(const std::vector<int> &mainMemory)
+int getParamCount(int opcode)
 {
-    for (int i = 0;i < mainMemory.size(); i++)
+    for (auto &opinfo : opcodeParamsVector)
     {
-        std::cout << i << " : " << mainMemory[i] << std::endl;
-        fout << i << " : " << mainMemory[i] << std::endl;
+        if (opinfo[0] == opcode)
+            return opinfo[1];
     }
-    std::cout << std::endl;
-    fout << std::endl;
+    return 0;
+}
+
+void executeCPU(int startAddress, int *mainMemory)
+{
+    PCB process;
+    process.process_id = mainMemory[startAddress + 0];
+    process.state = mainMemory[startAddress + 1];
+    process.program_counter = mainMemory[startAddress + 2];
+    process.instruction_base = mainMemory[startAddress + 3];
+    process.data_base = mainMemory[startAddress + 4];
+    process.memory_limit = mainMemory[startAddress + 5];
+    process.CPU_cycles_used = mainMemory[startAddress + 6];
+    process.register_value = mainMemory[startAddress + 7];
+    process.max_memory_needed = mainMemory[startAddress + 8];
+    process.main_memory_base = mainMemory[startAddress + 9];
+
+    int pid = process.process_id;
+    int cpu_cycles_this_run = 0;
+
+    global_clock += context_switch_time;
+
+    if (process.program_counter == 0)
+    {
+        process.program_counter = process.instruction_base;
+        param_off_sets[pid] = 0;
+        process_start_times[pid] = global_clock;
+    }
+
+    process.state = STATE_RUNNING;
+    mainMemory[startAddress + 1] = process.state;
+    mainMemory[startAddress + 2] = process.program_counter;
+
+    std::cout << "Process " << pid << " has moved to Running.\n";
+
+    int paramOffset = param_off_sets[pid];
+
+    while (process.program_counter < process.data_base && cpu_cycles_this_run < CPU_allocated)
+    {
+        int opcode = mainMemory[process.program_counter];
+        switch (opcode)
+        {
+        case 1: // compute
+        {
+            int iterations = mainMemory[process.data_base + paramOffset];
+            int cycles = mainMemory[process.data_base + paramOffset + 1];
+
+            std::cout << "compute\n";
+
+            process.CPU_cycles_used += cycles;
+            mainMemory[startAddress + 6] = process.CPU_cycles_used;
+
+            cpu_cycles_this_run += cycles;
+            global_clock += cycles;
+
+            break;
+        }
+        case 2: // print => IO
+        {
+            int cycles = mainMemory[process.data_base + paramOffset];
+            std::cout << "Process " << pid << " issued an IOInterrupt and moved to the IOWaitingQueue.\n";
+
+            // use std::make_tuple instead of brace init, the gradescope compiler did not like what I had here previously since it's a newish feature of cpp. I believe this is now ad older way of doing this previously I had this be a brace defined statement 
+            IOWaitingQueue.push(std::make_tuple(process, startAddress, cycles, global_clock));
+
+            process.state = STATE_IOWAITING;
+            mainMemory[startAddress + 1] = process.state;
+            return;
+        }
+        case 3: // store
+        {
+            int value = mainMemory[process.data_base + paramOffset];
+            int address = mainMemory[process.data_base + paramOffset + 1];
+
+            process.register_value = value;
+            mainMemory[startAddress + 7] = process.register_value;
+
+            if (address < process.memory_limit)
+            {
+                mainMemory[process.main_memory_base + address] = value;
+                std::cout << "stored\n";
+            }
+            else
+            {
+                std::cout << "store error!\n";
+            }
+
+            process.CPU_cycles_used++;
+            mainMemory[startAddress + 6] = process.CPU_cycles_used;
+
+            cpu_cycles_this_run++;
+            global_clock++;
+            break;
+        }
+        case 4: // load
+        {
+            int address = mainMemory[process.data_base + paramOffset];
+            if (address < process.memory_limit)
+            {
+                process.register_value = mainMemory[process.main_memory_base + address];
+                mainMemory[startAddress + 7] = process.register_value;
+                std::cout << "loaded\n";
+            }
+            else
+            {
+                std::cout << "load error!\n";
+            }
+
+            process.CPU_cycles_used++;
+            mainMemory[startAddress + 6] = process.CPU_cycles_used;
+
+            cpu_cycles_this_run++;
+            global_clock++;
+            break;
+        }
+        default:
+            break;
+        }
+
+        process.program_counter++;
+        mainMemory[startAddress + 2] = process.program_counter;
+
+        paramOffset += getParamCount(opcode);
+        param_off_sets[pid] = paramOffset;
+
+        if (cpu_cycles_this_run >= CPU_allocated && process.program_counter < process.data_base)
+        {
+            std::cout << "Process " << pid << " has a TimeOUT interrupt and is moved to the ReadyQueue.\n";
+            process.state = STATE_READY;
+
+            mainMemory[startAddress + 1] = process.state;
+            timeout_occurred = true;
+            return;
+        }
+    }
+
+    process.program_counter = process.instruction_base - 1;
+    mainMemory[startAddress + 2] = process.program_counter;
+
+    process.state = STATE_TERMINATED;
+    mainMemory[startAddress + 1] = process.state;
+
+    int totalExecutionTime = global_clock - process_start_times[pid];
+
+    std::cout << "Process ID: " << pid << "\n";
+    std::cout << "State: " << stateToString(process.state) << "\n";
+    std::cout << "Program Counter: " << process.program_counter << "\n";
+    std::cout << "Instruction Base: " << process.instruction_base << "\n";
+    std::cout << "Data Base: " << process.data_base << "\n";
+    std::cout << "Memory Limit: " << process.memory_limit << "\n";
+    std::cout << "CPU Cycles Used: " << process.CPU_cycles_used << "\n";
+    std::cout << "Register Value: " << process.register_value << "\n";
+    std::cout << "Max Memory Needed: " << process.max_memory_needed << "\n";
+    std::cout << "Main Memory Base: " << process.main_memory_base << "\n";
+    std::cout << "Total CPU Cycles Consumed: " << totalExecutionTime << "\n";
+
+    std::cout << "Process " << pid
+              << " terminated. Entered running state at: "
+              << process_start_times[pid]
+              << ". Terminated at: "
+              << global_clock
+              << ". Total Execution Time: "
+              << totalExecutionTime
+              << "." << "\n";
+}
+
+void checkIOWaitingQueue(std::queue<int> &readyQueue, int *mainMemory)
+{
+    int size = (int)IOWaitingQueue.size();
+    for (int i = 0; i < size; i++)
+    {
+        
+        std::tuple<PCB, int, int, int> frontItem = IOWaitingQueue.front();
+        IOWaitingQueue.pop();
+
+        // Grab the items in the queue
+        PCB process = std::get<0>(frontItem);
+        int startAddress = std::get<1>(frontItem);
+        int waitTime = std::get<2>(frontItem);
+        int timeEnteredIO = std::get<3>(frontItem);
+
+        int pid = process.process_id;
+
+        if (global_clock - timeEnteredIO >= waitTime)
+        {
+            int param_off_set = param_off_sets[pid];
+            int cycles = mainMemory[process.data_base + param_off_set];
+
+            std::cout << "print\n";
+            process.CPU_cycles_used += cycles;
+            mainMemory[startAddress + 6] = process.CPU_cycles_used;
+
+            process.program_counter++;
+            mainMemory[startAddress + 2] = process.program_counter;
+
+            param_off_set += getParamCount(2); // print => 1 param
+            param_off_sets[pid] = param_off_set;
+
+            process.state = STATE_READY;
+            mainMemory[startAddress + 1] = process.state;
+
+            std::cout << "Process " << pid << " completed I/O and is moved to the ReadyQueue.\n";
+            readyQueue.push(startAddress);
+        }
+        else
+        {
+            // Reinsert using std::make_tuple
+            IOWaitingQueue.push(std::make_tuple(process, startAddress, waitTime, timeEnteredIO));
+        }
+    }
 }

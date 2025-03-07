@@ -1,0 +1,24 @@
+
+--- Process Termination Logs ---
+Process 1 has moved to Running.
+compute
+Process 1 has a TimeOUT interrupt and is moved to the ReadyQueue.
+Process 2 has moved to Running.
+Process 2 issued an IOInterrupt and moved to the IOWaitingQueue.
+Process 1 has moved to Running.
+stored
+Process 1 has moved to Running.
+loaded
+Process ID: 1
+State: TERMINATED
+Program Counter: 9
+Instruction Base: 10
+Data Base: 13
+Memory Limit: 300
+CPU Cycles Used: 12
+Register Value: 42
+Max Memory Needed: 300
+Main Memory Base: 0
+Total CPU Cycles Consumed: 17
+Process 1 terminated. Entered running state at: 4. Terminated at: 17. Total Execution Time: 13.
+Total CPU time used: 17
