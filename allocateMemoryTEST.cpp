@@ -18,7 +18,7 @@ void allocateMemory(MemoryBlock *&memory_head, int process_id, int size)
         {
             std::cout << "DEBUG: Found free block! Assigning Process " << process_id << "\n\n";
 
-            int former_size = current->block_size; // store the orginal size of the block
+            int former_size = current->block_size; // store the original size of the block
             current->process_id = process_id; // assign the process ID to this block marking it for use
             current->block_size = size; // update the size of this block to the asked for size
 
@@ -75,7 +75,35 @@ void printMemoryBlocks(MemoryBlock* memoryHead)
     std::cout << "NULL\n";
 }
 
-int main() 
+void deallocateMemory(MemoryBlock *&memory_head, int process_id)
+{
+    MemoryBlock *current = memory_head;
+
+    std::cout <<"DEBUG: Trying to deallocate process " << process_id << "\n";
+
+    while(current)
+    {
+        if(current->process_id == process_id) // Found the process block number
+        {
+            std::cout << "DEBUG: Found process " << process_id << " at start address " << current->start_address << ", freeing memory. \n";
+            current->process_id = -1; // Mark as free
+
+            std::cout << "Process " << process_id << " terminated and released memory from " << current->start_address << " to " << (current->start_address + current->block_size) << "\n";
+
+
+            //call coalesceMemory to merge adjacent free blocks
+            // coalesceMemory(memory_head);
+            return;
+            
+        }
+
+        current = current->next; // move to the next node in the list
+    }
+
+    std::cout << "WARING: process " << process_id << " not found in memory\n";
+}
+
+int main()
 {
     // Create an initial large free memory block
     MemoryBlock* memoryHead = new MemoryBlock(-1, 0, 1000);
@@ -88,6 +116,12 @@ int main()
 
     // Print the final memory state
     printMemoryBlocks(memoryHead);
+
+    // Deallocate process 2 shouldn't trigger the coalescing process
+    deallocateMemory(memoryHead, 2);
+
+    printMemoryBlocks(memoryHead);
+
 
     return 0;
 }

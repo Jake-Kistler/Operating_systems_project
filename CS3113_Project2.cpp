@@ -49,7 +49,7 @@
 struct MemoryBlock
 {
     int process_id; // -1 if free otherwise holds the process ID
-    int start_address; // starting memory adress
+    int start_address; // starting memory address
     int block_size; // size of the block
     MemoryBlock *next; // pointer to the next block in the linked list
 
