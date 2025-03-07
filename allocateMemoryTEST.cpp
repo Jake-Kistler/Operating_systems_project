@@ -14,7 +14,7 @@ void allocateMemory(MemoryBlock *&memory_head, int process_id, int size)
     {
         std::cout << "DEBUG: Checking block at start " << current->start_address << " with size " << current->block_size << " (Process ID: " << current->process_id << ")\n\n";
 
-        if(current->process_id == -1 && current->block_size == size)
+        if(current->process_id == -1 && current->block_size >= size)
         {
             std::cout << "DEBUG: Found free block! Assigning Process " << process_id << "\n\n";
 
