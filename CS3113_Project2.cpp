@@ -46,15 +46,15 @@
 */
 
 
-struct memory_block
+struct MemoryBlock
 {
     int process_id; // -1 if free otherwise holds the process ID
     int start_address; // starting memory adress
     int block_size; // size of the block
-    memory_block *next; // pointer to the next block in the linked list
+    MemoryBlock *next; // pointer to the next block in the linked list
 
     // constructor for this
-    memory_block(int id, int start, int size)
+    MemoryBlock(int id, int start, int size)
     {
         process_id = id;
         start_address = start;
@@ -121,7 +121,7 @@ void executeCPU(int startAddress, int *mainMemory);
 
 void checkIOWaitingQueue(std::queue<int> &readyQueue, int *mainMemory);
 
-void allocateMemory(int process_id, int size, memory_block *memory_head);
+void allocateMemory(int process_id, int size, MemoryBlock *memory_head);
 
 int main(int argc, char **argv)
 {
@@ -134,7 +134,7 @@ int main(int argc, char **argv)
     std::cin >> max_memory >> CPU_allocated >> context_switch_time >> num_processes;
 
     // Build the linked list as  one large free block to start
-    memory_block *memory_head = new memory_block(-1,0,max_memory);
+    MemoryBlock *memory_head = new MemoryBlock(-1,0,max_memory);
 
     // build a dynamic array and fill it with -1, changed this because I've come to realize how much hand holding modern programming languages do. Thanks MIPS for opening my eyes
     int *main_memory = new int[max_memory];
@@ -510,9 +510,9 @@ void checkIOWaitingQueue(std::queue<int> &readyQueue, int *mainMemory)
     }
 }
 
-void allocateMemory(int process_id, int size, memory_block *memory_head)
+void allocateMemory(int process_id, int size, MemoryBlock *memory_head)
 {
-    memory_block *current = memory_head;
+    MemoryBlock *current = memory_head;
 
     // need to search for a free memory block IE when process_id is -1 and see if the size of this block will work 
     while (current) // will stop when current == nullptr 
@@ -522,7 +522,24 @@ void allocateMemory(int process_id, int size, memory_block *memory_head)
             int former_size = current->block_size; // store the orginal size of the block
             current->process_id = process_id; // assign the process ID to this block marking it for use
             current->block_size = size; // update the size of this block to the asked for size
-            
+
+            // we need to create a new block should there be unallocated memory
+            if(former_size > size)
+            {
+                MemoryBlock  *new_block = new MemoryBlock(-1, current->start_address + size, 
+                    former_size - size); // starts with the -1 (free) ID, it starts at the current address's start + the size, the size of this new block is the left over memory
+
+                new_block->next = current->next; //linking it back to the linked list 
+                current->next = new_block; // insert it AFTER the newly allocated block so it [allocated block] ... [new block]
+            }
+
+            std::cout << "Process " << process_id << " loaded into memory at address " << current->start_address << " with size " << size << ".\n";
+            return;
         }
-    }
-}
+
+        current = current->next; // addvance to the next node
+    } 
+
+    std::cout << "Process " << process_id << " waiting in NewJobQueue due to insufficient memory.\n";
+    
+} // END allocateMemory
