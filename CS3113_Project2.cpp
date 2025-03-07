@@ -46,6 +46,26 @@
 */
 
 
+struct memory_block
+{
+    int process_id; // -1 if free otherwise holds the process ID
+    int start_address; // starting memory adress
+    int block_size; // size of the block
+    memory_block *next; // pointer to the next block in the linked list
+
+    // constructor for this
+    memory_block(int id, int start, int size)
+    {
+        process_id = id;
+        start_address = start;
+        block_size = size;
+        next = nullptr;
+    }
+};
+
+
+
+
 
 
 
