@@ -92,7 +92,7 @@ void deallocateMemory(MemoryBlock *&memory_head, int process_id)
 
 
             //call coalesceMemory to merge adjacent free blocks
-            // coalesceMemory(memory_head);
+            coalesceMemory(memory_head);
             return;
             
         }
@@ -103,25 +103,59 @@ void deallocateMemory(MemoryBlock *&memory_head, int process_id)
     std::cout << "WARING: process " << process_id << " not found in memory\n";
 }
 
+void coalesceMemory(MemoryBlock *&memory_head)
+{
+    MemoryBlock *current = memory_head;
+
+    std::cout << "DEBUG: checking for memory coalescing...\n";
+
+    while(current && current->next)
+    {
+        if(current->process_id == -1 && current->next->process_id == -1)
+        {
+            std::cout << "DEBUG: Merging free blocks at " << current->start_address << " and " << current->next->start_address << "\n";
+
+            current->block_size += current->next->block_size; // expand the current block to include the next free block
+            MemoryBlock *temp = current->next;
+            current->next = current->next->next; // cut out the now merged block from the list
+            delete temp; // free the memory
+
+            std::cout << "Memory coalesced at address " << current->start_address << " with new size " << current->block_size << "\n";
+        }
+        else
+        {
+            current = current->next;
+        }
+    }
+}
+
 int main()
 {
     // Create an initial large free memory block
-    MemoryBlock* memoryHead = new MemoryBlock(-1, 0, 1000);
+    MemoryBlock *memoryHead = new MemoryBlock(-1, 0, 1000);
 
     // Allocate processes
+    std::cout << "Allocation starts!\n";
     allocateMemory(memoryHead, 1, 200);
     allocateMemory(memoryHead, 2, 300);
     allocateMemory(memoryHead, 3, 250);
     allocateMemory(memoryHead, 4, 400);  // Should wait in NewJobQueue (not enough contiguous space)
+    std::cout << "Allocation ends!\n";
 
     // Print the final memory state
     printMemoryBlocks(memoryHead);
 
     // Deallocate process 2 shouldn't trigger the coalescing process
+    std::cout << "Deallocating process 2 starts here!\n";
     deallocateMemory(memoryHead, 2);
-
     printMemoryBlocks(memoryHead);
+    std::cout << "We've deallocated process 2 by now!\n";
 
+    // Deallocate process 3 which should trigger coalescing
+    std::cout << "Deallocating process 3 now!\n";
+    deallocateMemory(memoryHead, 3);
+    printMemoryBlocks(memoryHead);
+    std::cout << "And that's the show folks!\n";
 
     return 0;
 }

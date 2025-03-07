@@ -24,5 +24,6 @@ struct MemoryBlock
 void allocateMemory(MemoryBlock *&memoryHead, int process_id, int size);
 void printMemoryBlocks(MemoryBlock* memoryHead);
 void deallocateMemory(MemoryBlock *&memory_head, int process_id);
+void coalesceMemory(MemoryBlock *&memory_head);
 
 #endif // MEMORYBLOCK_H
