@@ -64,15 +64,6 @@ struct memory_block
 };
 
 
-
-
-
-
-
-
-
-
-
 // State codes constexp is a form of constants that are type safe (found them here: https://en.cppreference.com/w/cpp/language/constexpr)
 constexpr int STATE_NEW = 1;
 constexpr int STATE_READY = 2;
@@ -130,6 +121,8 @@ void executeCPU(int startAddress, int *mainMemory);
 
 void checkIOWaitingQueue(std::queue<int> &readyQueue, int *mainMemory);
 
+void allocateMemory(int process_id, int size, memory_block *memory_head);
+
 int main(int argc, char **argv)
 {
     // define variables and newJobQueue and readyQueue
@@ -139,6 +132,9 @@ int main(int argc, char **argv)
 
     // read in data
     std::cin >> max_memory >> CPU_allocated >> context_switch_time >> num_processes;
+
+    // Build the linked list as  one large free block to start
+    memory_block *memory_head = new memory_block(-1,0,max_memory);
 
     // build a dynamic array and fill it with -1, changed this because I've come to realize how much hand holding modern programming languages do. Thanks MIPS for opening my eyes
     int *main_memory = new int[max_memory];
@@ -510,6 +506,23 @@ void checkIOWaitingQueue(std::queue<int> &readyQueue, int *mainMemory)
         {
             // Reinsert using std::make_tuple
             IOWaitingQueue.push(std::make_tuple(process, startAddress, waitTime, timeEnteredIO));
+        }
+    }
+}
+
+void allocateMemory(int process_id, int size, memory_block *memory_head)
+{
+    memory_block *current = memory_head;
+
+    // need to search for a free memory block IE when process_id is -1 and see if the size of this block will work 
+    while (current) // will stop when current == nullptr 
+    {
+        if(current->process_id == -1 && current->block_size == size)
+        {
+            int former_size = current->block_size; // store the orginal size of the block
+            current->process_id = process_id; // assign the process ID to this block marking it for use
+            current->block_size = size; // update the size of this block to the asked for size
+            
         }
     }
 }
