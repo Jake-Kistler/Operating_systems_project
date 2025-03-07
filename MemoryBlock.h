@@ -21,7 +21,7 @@ struct MemoryBlock
 };
 
 // Function prototypes
-void allocateMemory(MemoryBlock* memoryHead, int processID, int size);
+void allocateMemory(MemoryBlock *&memoryHead, int process_id, int size);
 void printMemoryBlocks(MemoryBlock* memoryHead);
 
 #endif // MEMORYBLOCK_H

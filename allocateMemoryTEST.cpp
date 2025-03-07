@@ -2,15 +2,22 @@
 #include <sstream>
 
 // Function to allocate memory for a process
-void allocateMemory(MemoryBlock *memory_head, int process_id, int size)
+void allocateMemory(MemoryBlock *&memory_head, int process_id, int size)
 {
     MemoryBlock *current = memory_head;
+
+    std::cout << "DEBUG: Trying to allocate Process " << process_id << " with size " << size << "\n";
+
 
     // need to search for a free memory block IE when process_id is -1 and see if the size of this block will work 
     while (current) // will stop when current == nullptr 
     {
+        std::cout << "DEBUG: Checking block at start " << current->start_address << " with size " << current->block_size << " (Process ID: " << current->process_id << ")\n\n";
+
         if(current->process_id == -1 && current->block_size == size)
         {
+            std::cout << "DEBUG: Found free block! Assigning Process " << process_id << "\n\n";
+
             int former_size = current->block_size; // store the orginal size of the block
             current->process_id = process_id; // assign the process ID to this block marking it for use
             current->block_size = size; // update the size of this block to the asked for size
@@ -18,10 +25,13 @@ void allocateMemory(MemoryBlock *memory_head, int process_id, int size)
             // we need to create a new block should there be unallocated memory
             if(former_size > size)
             {
-                MemoryBlock  *new_block = new MemoryBlock(-1, current->start_address + size, 
-                    former_size - size); // starts with the -1 (free) ID, it starts at the current address's start + the size, the size of this new block is the left over memory
+                MemoryBlock* new_block = new MemoryBlock(-1, current->start_address + size, former_size - size);
 
                 new_block->next = current->next; //linking it back to the linked list 
+
+                std::cout << "DEBUG: Split block. New free block at " 
+                          << new_block->start_address << " with size " << new_block->block_size << "\n\n";
+
                 current->next = new_block; // insert it AFTER the newly allocated block so it [allocated block] ... [new block]
             }
 
