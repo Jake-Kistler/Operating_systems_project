@@ -1,6 +1,16 @@
 #include "MemoryBlock.h"
 #include <sstream>
 
+MemoryBlock *iterateMemory(MemoryBlock *current)
+{
+    // If the current current block exists return the next block in the list
+    if(current != nullptr)
+        return current->next;
+    
+    // if current is null, we are are at the end of the list so return null
+    return nullptr;
+}
+
 // Function to allocate memory for a process
 void allocateMemory(MemoryBlock *&memory_head, int process_id, int size)
 {
@@ -52,24 +62,10 @@ void printMemoryBlocks(MemoryBlock* memoryHead)
     MemoryBlock* current = memoryHead;
     std::cout << "\nCurrent Memory Blocks:\n";
 
-    while (current) 
-    {
-        std::ostringstream oss;
-
-        if (current->process_id == -1) 
-        {
-            oss << "Free";
-        } 
-        else 
-        {
-            oss << "P" << current->process_id;
-        }
-
-        std::cout << "[ " << oss.str()
+    for (MemoryBlock* current = memoryHead; current != nullptr; current = iterateMemory(current)) {
+        std::cout << "[ " << (current->process_id == -1 ? "Free" : "P" + std::to_string(current->process_id))
                   << " | Start=" << current->start_address
                   << " | Size=" << current->block_size << " ] -> ";
-
-        current = current->next;
     }
 
     std::cout << "NULL\n";
