@@ -1,0 +1,793 @@
+Process 1 loaded into memory at address 0 with size 257.
+Process 2 loaded into memory at address 257 with size 316.
+Process 3 loaded into memory at address 573 with size 412.
+Process 4 loaded into memory at address 985 with size 251.
+Process 5 loaded into memory at address 1236 with size 493.
+Process 6 loaded into memory at address 1729 with size 267.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Process 1 has moved to Running.
+Process 1 issued an IOInterrupt and moved to the IOWaitingQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Process 2 has moved to Running.
+Process 2 issued an IOInterrupt and moved to the IOWaitingQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Process 3 has moved to Running.
+Process 3 issued an IOInterrupt and moved to the IOWaitingQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Process 4 has moved to Running.
+compute
+Process 4 has a TimeOUT interrupt and is moved to the ReadyQueue.
+print
+Process 1 completed I/O and is moved to the ReadyQueue.
+print
+Process 2 completed I/O and is moved to the ReadyQueue.
+print
+Process 3 completed I/O and is moved to the ReadyQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Process 5 has moved to Running.
+stored
+Process 5 issued an IOInterrupt and moved to the IOWaitingQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Process 6 has moved to Running.
+stored
+compute
+Process 6 has a TimeOUT interrupt and is moved to the ReadyQueue.
+print
+Process 5 completed I/O and is moved to the ReadyQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Process 4 has moved to Running.
+Process 4 issued an IOInterrupt and moved to the IOWaitingQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Process 1 has moved to Running.
+stored
+stored
+stored
+compute
+Process 1 has a TimeOUT interrupt and is moved to the ReadyQueue.
+print
+Process 4 completed I/O and is moved to the ReadyQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Process 2 has moved to Running.
+Process 2 issued an IOInterrupt and moved to the IOWaitingQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Process 3 has moved to Running.
+compute
+Process 3 has a TimeOUT interrupt and is moved to the ReadyQueue.
+print
+Process 2 completed I/O and is moved to the ReadyQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Process 6 has moved to Running.
+compute
+Process 6 has a TimeOUT interrupt and is moved to the ReadyQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Process 5 has moved to Running.
+loaded
+loaded
+Process 5 issued an IOInterrupt and moved to the IOWaitingQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Process 1 has moved to Running.
+loaded
+stored
+loaded
+Process 1 issued an IOInterrupt and moved to the IOWaitingQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Process 4 has moved to Running.
+stored
+Process 4 issued an IOInterrupt and moved to the IOWaitingQueue.
+print
+Process 5 completed I/O and is moved to the ReadyQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Process 3 has moved to Running.
+loaded
+compute
+Process 3 has a TimeOUT interrupt and is moved to the ReadyQueue.
+print
+Process 1 completed I/O and is moved to the ReadyQueue.
+print
+Process 4 completed I/O and is moved to the ReadyQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Process 2 has moved to Running.
+loaded
+loaded
+loaded
+stored
+loaded
+Process 2 has a TimeOUT interrupt and is moved to the ReadyQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Process 6 has moved to Running.
+stored
+stored
+loaded
+stored
+loaded
+Process 6 has a TimeOUT interrupt and is moved to the ReadyQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Process 5 has moved to Running.
+compute
+Process 5 has a TimeOUT interrupt and is moved to the ReadyQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Process 3 has moved to Running.
+loaded
+Process 3 issued an IOInterrupt and moved to the IOWaitingQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Process 1 has moved to Running.
+stored
+Process ID: 1
+State: TERMINATED
+Program Counter: 9
+Instruction Base: 10
+Data Base: 20
+Memory Limit: 257
+CPU Cycles Used: 25
+Register Value: 42
+Max Memory Needed: 257
+Main Memory Base: 0
+Total CPU Cycles Consumed: 126
+Process 1 terminated. Entered running state at: 2. Terminated at: 128. Total Execution Time: 126.
+Process 1 terminated and released memory from 0 to 256.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 loaded into memory at address 0 with size 254.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Process 4 has moved to Running.
+stored
+compute
+Process 4 has a TimeOUT interrupt and is moved to the ReadyQueue.
+print
+Process 3 completed I/O and is moved to the ReadyQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Process 2 has moved to Running.
+compute
+Process 2 has a TimeOUT interrupt and is moved to the ReadyQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Process 6 has moved to Running.
+loaded
+compute
+Process 6 has a TimeOUT interrupt and is moved to the ReadyQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Process 5 has moved to Running.
+stored
+compute
+Process 5 has a TimeOUT interrupt and is moved to the ReadyQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Process 9 has moved to Running.
+compute
+Process 9 has a TimeOUT interrupt and is moved to the ReadyQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Process 4 has moved to Running.
+stored
+loaded
+stored
+compute
+Process 4 has a TimeOUT interrupt and is moved to the ReadyQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Process 3 has moved to Running.
+stored
+loaded
+compute
+Process 3 has a TimeOUT interrupt and is moved to the ReadyQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Process 2 has moved to Running.
+loaded
+compute
+Process 2 has a TimeOUT interrupt and is moved to the ReadyQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Process 6 has moved to Running.
+compute
+Process 6 has a TimeOUT interrupt and is moved to the ReadyQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Process 5 has moved to Running.
+loaded
+stored
+compute
+Process 5 has a TimeOUT interrupt and is moved to the ReadyQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Process 9 has moved to Running.
+loaded
+loaded
+Process 9 issued an IOInterrupt and moved to the IOWaitingQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Process 4 has moved to Running.
+Process 4 issued an IOInterrupt and moved to the IOWaitingQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Process 3 has moved to Running.
+loaded
+Process 3 issued an IOInterrupt and moved to the IOWaitingQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 10 waiting in NewJobQueue due to insufficient memory.
+Process 2 has moved to Running.
+stored
+loaded
+loaded
+stored
+Process ID: 2
+State: TERMINATED
+Program Counter: 266
+Instruction Base: 267
+Data Base: 281
+Memory Limit: 316
+CPU Cycles Used: 31
+Register Value: 38
+Max Memory Needed: 316
+Main Memory Base: 257
+Total CPU Cycles Consumed: 272
+Process 2 terminated. Entered running state at: 4. Terminated at: 276. Total Execution Time: 272.
+Process 2 terminated and released memory from 257 to 572.
+print
+Process 9 completed I/O and is moved to the ReadyQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 10 loaded into memory at address 257 with size 205.
+Process 6 has moved to Running.
+Process 6 issued an IOInterrupt and moved to the IOWaitingQueue.
+print
+Process 4 completed I/O and is moved to the ReadyQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 5 has moved to Running.
+compute
+Process 5 has a TimeOUT interrupt and is moved to the ReadyQueue.
+print
+Process 3 completed I/O and is moved to the ReadyQueue.
+print
+Process 6 completed I/O and is moved to the ReadyQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 has moved to Running.
+loaded
+compute
+Process 9 has a TimeOUT interrupt and is moved to the ReadyQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 10 has moved to Running.
+Process 10 issued an IOInterrupt and moved to the IOWaitingQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 4 has moved to Running.
+Process 4 issued an IOInterrupt and moved to the IOWaitingQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 5 has moved to Running.
+compute
+Process 5 has a TimeOUT interrupt and is moved to the ReadyQueue.
+print
+Process 10 completed I/O and is moved to the ReadyQueue.
+print
+Process 4 completed I/O and is moved to the ReadyQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 3 has moved to Running.
+Process 3 issued an IOInterrupt and moved to the IOWaitingQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 6 has moved to Running.
+compute
+Process 6 has a TimeOUT interrupt and is moved to the ReadyQueue.
+print
+Process 3 completed I/O and is moved to the ReadyQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 has moved to Running.
+Process 9 issued an IOInterrupt and moved to the IOWaitingQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 5 has moved to Running.
+compute
+Process 5 has a TimeOUT interrupt and is moved to the ReadyQueue.
+print
+Process 9 completed I/O and is moved to the ReadyQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 10 has moved to Running.
+stored
+stored
+Process 10 issued an IOInterrupt and moved to the IOWaitingQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 4 has moved to Running.
+compute
+Process ID: 4
+State: TERMINATED
+Program Counter: 994
+Instruction Base: 995
+Data Base: 1008
+Memory Limit: 251
+CPU Cycles Used: 64
+Register Value: 42
+Max Memory Needed: 251
+Main Memory Base: 985
+Total CPU Cycles Consumed: 359
+Process 4 terminated. Entered running state at: 8. Terminated at: 367. Total Execution Time: 359.
+Process 4 terminated and released memory from 985 to 1235.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 6 has moved to Running.
+compute
+Process 6 has a TimeOUT interrupt and is moved to the ReadyQueue.
+print
+Process 10 completed I/O and is moved to the ReadyQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 3 has moved to Running.
+compute
+Process 3 has a TimeOUT interrupt and is moved to the ReadyQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 5 has moved to Running.
+compute
+Process 5 has a TimeOUT interrupt and is moved to the ReadyQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 9 has moved to Running.
+Process ID: 9
+State: TERMINATED
+Program Counter: 9
+Instruction Base: 10
+Data Base: 17
+Memory Limit: 254
+CPU Cycles Used: 43
+Register Value: -1
+Max Memory Needed: 254
+Main Memory Base: 0
+Total CPU Cycles Consumed: 235
+Process 9 terminated. Entered running state at: 182. Terminated at: 417. Total Execution Time: 235.
+Process 9 terminated and released memory from 0 to 253.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 6 has moved to Running.
+loaded
+Process 6 issued an IOInterrupt and moved to the IOWaitingQueue.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 10 has moved to Running.
+loaded
+loaded
+loaded
+Process ID: 10
+State: TERMINATED
+Program Counter: 266
+Instruction Base: 267
+Data Base: 274
+Memory Limit: 205
+CPU Cycles Used: 19
+Register Value: -1
+Max Memory Needed: 205
+Main Memory Base: 257
+Total CPU Cycles Consumed: 117
+Process 10 terminated. Entered running state at: 308. Terminated at: 425. Total Execution Time: 117.
+Process 10 terminated and released memory from 257 to 461.
+Process 7 waiting in NewJobQueue due to insufficient memory.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 7. Attempting memory coalescing.
+Process 7 loaded into memory at address 0 with size 406.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 3 has moved to Running.
+stored
+Process 3 issued an IOInterrupt and moved to the IOWaitingQueue.
+print
+Process 6 completed I/O and is moved to the ReadyQueue.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 8. Attempting memory coalescing.
+Process 8 waiting in NewJobQueue due to insufficient memory.
+Process 5 has moved to Running.
+stored
+stored
+Process ID: 5
+State: TERMINATED
+Program Counter: 1245
+Instruction Base: 1246
+Data Base: 1263
+Memory Limit: 493
+CPU Cycles Used: 119
+Register Value: 24
+Max Memory Needed: 493
+Main Memory Base: 1236
+Total CPU Cycles Consumed: 413
+Process 5 terminated. Entered running state at: 19. Terminated at: 432. Total Execution Time: 413.
+Process 5 terminated and released memory from 1236 to 1728.
+Process 8 loaded into memory at address 1236 with size 334.
+Process 7 has moved to Running.
+loaded
+loaded
+compute
+Process 7 has a TimeOUT interrupt and is moved to the ReadyQueue.
+print
+Process 3 completed I/O and is moved to the ReadyQueue.
+Process 6 has moved to Running.
+Process 6 issued an IOInterrupt and moved to the IOWaitingQueue.
+Process 8 has moved to Running.
+Process 8 issued an IOInterrupt and moved to the IOWaitingQueue.
+Process 7 has moved to Running.
+stored
+loaded
+loaded
+compute
+Process 7 has a TimeOUT interrupt and is moved to the ReadyQueue.
+print
+Process 6 completed I/O and is moved to the ReadyQueue.
+print
+Process 8 completed I/O and is moved to the ReadyQueue.
+Process 3 has moved to Running.
+loaded
+loaded
+Process 3 issued an IOInterrupt and moved to the IOWaitingQueue.
+Process 7 has moved to Running.
+compute
+Process 7 has a TimeOUT interrupt and is moved to the ReadyQueue.
+print
+Process 3 completed I/O and is moved to the ReadyQueue.
+Process 6 has moved to Running.
+Process 6 issued an IOInterrupt and moved to the IOWaitingQueue.
+Process 8 has moved to Running.
+loaded
+compute
+Process 8 has a TimeOUT interrupt and is moved to the ReadyQueue.
+print
+Process 6 completed I/O and is moved to the ReadyQueue.
+Process 7 has moved to Running.
+loaded
+compute
+Process 7 has a TimeOUT interrupt and is moved to the ReadyQueue.
+Process 3 has moved to Running.
+loaded
+Process ID: 3
+State: TERMINATED
+Program Counter: 582
+Instruction Base: 583
+Data Base: 602
+Memory Limit: 412
+CPU Cycles Used: 93
+Register Value: -1
+Max Memory Needed: 412
+Main Memory Base: 573
+Total CPU Cycles Consumed: 501
+Process 3 terminated. Entered running state at: 6. Terminated at: 507. Total Execution Time: 501.
+Process 3 terminated and released memory from 573 to 984.
+Process 8 has moved to Running.
+Process 8 issued an IOInterrupt and moved to the IOWaitingQueue.
+Process 6 has moved to Running.
+stored
+Process ID: 6
+State: TERMINATED
+Program Counter: 1738
+Instruction Base: 1739
+Data Base: 1758
+Memory Limit: 267
+CPU Cycles Used: 87
+Register Value: 52
+Max Memory Needed: 267
+Main Memory Base: 1729
+Total CPU Cycles Consumed: 490
+Process 6 terminated. Entered running state at: 22. Terminated at: 512. Total Execution Time: 490.
+Process 6 terminated and released memory from 1729 to 1995.
+Process 7 has moved to Running.
+Process 7 issued an IOInterrupt and moved to the IOWaitingQueue.
+print
+Process 8 completed I/O and is moved to the ReadyQueue.
+Process 8 has moved to Running.
+stored
+Process ID: 8
+State: TERMINATED
+Program Counter: 1245
+Instruction Base: 1246
+Data Base: 1251
+Memory Limit: 334
+CPU Cycles Used: 27
+Register Value: 38
+Max Memory Needed: 334
+Main Memory Base: 1236
+Total CPU Cycles Consumed: 77
+Process 8 terminated. Entered running state at: 446. Terminated at: 523. Total Execution Time: 77.
+Process 8 terminated and released memory from 1236 to 1569.
+print
+Process 7 completed I/O and is moved to the ReadyQueue.
+Process 7 has moved to Running.
+compute
+Process 7 has a TimeOUT interrupt and is moved to the ReadyQueue.
+Process 7 has moved to Running.
+Process 7 issued an IOInterrupt and moved to the IOWaitingQueue.
+print
+Process 7 completed I/O and is moved to the ReadyQueue.
+Process 7 has moved to Running.
+loaded
+Process 7 issued an IOInterrupt and moved to the IOWaitingQueue.
+print
+Process 7 completed I/O and is moved to the ReadyQueue.
+Process 7 has moved to Running.
+Process ID: 7
+State: TERMINATED
+Program Counter: 9
+Instruction Base: 10
+Data Base: 25
+Memory Limit: 406
+CPU Cycles Used: 84
+Register Value: 3
+Max Memory Needed: 406
+Main Memory Base: 0
+Total CPU Cycles Consumed: 129
+Process 7 terminated. Entered running state at: 434. Terminated at: 563. Total Execution Time: 129.
+Process 7 terminated and released memory from 0 to 405.
+Total CPU time used: 565.

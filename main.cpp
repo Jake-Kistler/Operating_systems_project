@@ -4,66 +4,6 @@
 #include <vector>
 #include <string>
 
-/*
-* Project 3 asks us to change hoow jobs are loaded into memory 
-* Previously, we loaded directlty into the ReadyQueue if memory was aviable 
-* Now, we've been asked to create a NewJobQueue and when there is enough memory we will load them into the readyQueue
-* In the case of not having enough memeory to use we have to options:
-*   1) Wait
-*   2) Coalesce memory (more on that below)
-* We then contiune like normal 
-*
-* Lets say we have 1000 memory cells 
-* Process 1 starts at 0 and has a size of 200 so now there are 800 free blocks to work with
-* process 2 starts at 350 and has a size of 300 
-* process 5 starts at 750 and has a size of 250 
-* 
-* so 0-200 is used there is a gap from 200 - 350 (150 free slots)
-* process 2 starts at 350 and takes 300 cells up so 350-650 is occupied now 
-* Then there is another free block from 650 to 750.
-* we then load process 3 from 750 - 1000 and are now out of memory 
-* 
-* Say we have a new process 4 arrives and needs 180 memory cells to run,
-* We don't have this space in a single cohensive block of memory and will need to 
-* Combine the free blocks into one unit to load process 4 and it would need to wait for memory to free up
-*
-*
-* TO COALESCE:
-* Find our unassigned blocks of memory and combine them into one unit 
-* so tbe block after process 1 but before process 2 is free and so is 
-* the block after process 2 but before process 3 
-* 
-* 150 [gap after process 1] + 100 [gap after process 2] = 250 units of free space 
-* If we make this a cohesvie block we can load process 4 
-*
-* NEW STRUCTURES:
-* new_job_queue<PCB> // this will store the jobs and load them into the readyQueue only when there is enough memory to do so 
-* Dynamic memory allocation handled / monitored by a linked list, each node has the following:
-*   i) int Process_id // the id of the process -1 if free
-*   ii) int start_address // where the block starts
-*   iii) int block_size // size of the block 
-*  
-*/
-
-
-struct MemoryBlock
-{
-    int process_id; // -1 if free otherwise holds the process ID
-    int start_address; // starting memory address
-    int block_size; // size of the block
-    MemoryBlock *next; // pointer to the next block in the linked list
-
-    // constructor for this
-    MemoryBlock(int id, int start, int size)
-    {
-        process_id = id;
-        start_address = start;
-        block_size = size;
-        next = nullptr;
-    }
-};
-
-
 // State codes constexp is a form of constants that are type safe (found them here: https://en.cppreference.com/w/cpp/language/constexpr)
 constexpr int STATE_NEW = 1;
 constexpr int STATE_READY = 2;
@@ -88,6 +28,15 @@ struct PCB
     std::vector<std::vector<int>> instructions;
 };
 
+struct MemoryBlock 
+{
+    int process_id;        // -1 if free
+    int start_address;
+    int size;
+    MemoryBlock* next;
+};
+
+
 // This structure is a static vector that we will use to compare the opcode and parameters with.
 static std::vector<std::vector<int>> opcodeParamsVector = {
     {1, 2}, // Compute => 2 params
@@ -103,6 +52,8 @@ static int process_start_times[MAX_PID];
 int global_clock = 0;
 bool timeout_occurred = false;
 int context_switch_time, CPU_allocated;
+MemoryBlock* memory_head = nullptr;
+
 
 
 /*
@@ -121,8 +72,6 @@ void executeCPU(int startAddress, int *mainMemory);
 
 void checkIOWaitingQueue(std::queue<int> &readyQueue, int *mainMemory);
 
-void allocateMemory(MemoryBlock *&memory_head, int process_id, int size);
-
 int main(int argc, char **argv)
 {
     // define variables and newJobQueue and readyQueue
@@ -133,13 +82,20 @@ int main(int argc, char **argv)
     // read in data
     std::cin >> max_memory >> CPU_allocated >> context_switch_time >> num_processes;
 
-    // Build the linked list as  one large free block to start
-    MemoryBlock *memory_head = new MemoryBlock(-1,0,max_memory);
-
     // build a dynamic array and fill it with -1, changed this because I've come to realize how much hand holding modern programming languages do. Thanks MIPS for opening my eyes
     int *main_memory = new int[max_memory];
+
     for (int i = 0; i < max_memory; i++)
         main_memory[i] = -1;
+
+    // Initialize the memory block linked list with one large free block
+    memory_head = new MemoryBlock;
+    memory_head->process_id = -1;
+    memory_head->start_address = 0;
+    memory_head->size = max_memory;
+    memory_head->next = nullptr;
+
+    
 
     for (int i = 0; i < MAX_PID; i++)
     {
@@ -185,8 +141,7 @@ int main(int argc, char **argv)
         newJobQueue.push(process);
     }
 
-    loadJobsToMemory(newJobQueue, readyQueue, main_memory, max_memory, memory_head);
-
+    loadJobsToMemory(newJobQueue, readyQueue, main_memory, max_memory);
 
     // Debug: show contents of mainMemory
     for (int i = 0; i < max_memory; i++)
@@ -244,79 +199,53 @@ std::string stateToString(int state_code)
     return "UNKNOWN";
 }
 
-void loadJobsToMemory(std::queue<PCB> &newJobQueue, std::queue<int> &readyQueue, int *mainMemory, int maxMemory, MemoryBlock *&memory_head)
+void loadJobsToMemory(std::queue<PCB> &newJobQueue, std::queue<int> &readyQueue, int *mainMemory, int maxMemory)
 {
-    std::queue<PCB> tempQueue;
-
+    int memoryIndex = 0;
     while (!newJobQueue.empty())
     {
         PCB process = newJobQueue.front();
         newJobQueue.pop();
 
-        int total_memory_required = process.max_memory_needed + 10; // include PCB metadata
-
-        // Try to allocate memory
-        allocateMemory(memory_head, process.process_id, total_memory_required);
-
-        // Find the start address of this process in the linked list
-        MemoryBlock* current = memory_head;
-        bool found = false;
-        while (current)
+        if (memoryIndex + process.max_memory_needed > maxMemory)
         {
-            if (current->process_id == process.process_id)
-            {
-                found = true;
-                break;
-            }
-            current = current->next;
+            std::cout << "Not enough memory to load Process " << process.process_id << "\n";
+            continue;
         }
 
-        if (found)
+        process.main_memory_base = memoryIndex;
+        process.instruction_base = memoryIndex + 10;
+        process.data_base = process.instruction_base + (int)process.instructions.size();
+
+        mainMemory[memoryIndex + 0] = process.process_id;
+        mainMemory[memoryIndex + 1] = process.state;
+        mainMemory[memoryIndex + 2] = process.program_counter;
+        mainMemory[memoryIndex + 3] = process.instruction_base;
+        mainMemory[memoryIndex + 4] = process.data_base;
+        mainMemory[memoryIndex + 5] = process.memory_limit;
+        mainMemory[memoryIndex + 6] = process.CPU_cycles_used;
+        mainMemory[memoryIndex + 7] = process.register_value;
+        mainMemory[memoryIndex + 8] = process.max_memory_needed;
+        mainMemory[memoryIndex + 9] = process.main_memory_base;
+
+        int writeIndex = process.instruction_base;
+        for (auto &instr : process.instructions)
         {
-            process.main_memory_base = current->start_address;
-            process.instruction_base = process.main_memory_base + 10;
-            process.data_base = process.instruction_base + (int)process.instructions.size();
-
-            // Load PCB metadata
-            mainMemory[process.main_memory_base + 0] = process.process_id;
-            mainMemory[process.main_memory_base + 1] = process.state;
-            mainMemory[process.main_memory_base + 2] = process.program_counter;
-            mainMemory[process.main_memory_base + 3] = process.instruction_base;
-            mainMemory[process.main_memory_base + 4] = process.data_base;
-            mainMemory[process.main_memory_base + 5] = process.memory_limit;
-            mainMemory[process.main_memory_base + 6] = process.CPU_cycles_used;
-            mainMemory[process.main_memory_base + 7] = process.register_value;
-            mainMemory[process.main_memory_base + 8] = process.max_memory_needed;
-            mainMemory[process.main_memory_base + 9] = process.main_memory_base;
-
-            // Load Instructions
-            int writeIndex = process.instruction_base;
-            for (auto &instr : process.instructions)
-            {
-                mainMemory[writeIndex++] = instr[0];
-            }
-
-            for (auto &instr : process.instructions)
-            {
-                for (int j = 1; j < (int)instr.size(); j++)
-                {
-                    mainMemory[writeIndex++] = instr[j];
-                }
-            }
-
-            readyQueue.push(process.main_memory_base);
+            mainMemory[writeIndex++] = instr[0];
         }
-        else
+
+        for (auto &instr : process.instructions)
         {
-            // Couldn't allocate memory, push it back
-            tempQueue.push(process);
+            for (int j = 1; j < (int)instr.size(); j++)
+            {
+                mainMemory[writeIndex++] = instr[j];
+            }
         }
+
+        readyQueue.push(process.main_memory_base);
+        memoryIndex = process.instruction_base + process.max_memory_needed;
     }
-
-    // Restore processes that weren't loaded
-    newJobQueue = tempQueue;
 }
-
 
 int getParamCount(int opcode)
 {
@@ -536,37 +465,3 @@ void checkIOWaitingQueue(std::queue<int> &readyQueue, int *mainMemory)
         }
     }
 }
-
-void allocateMemory(int process_id, int size, MemoryBlock *memory_head)
-{
-    MemoryBlock *current = memory_head;
-
-    // need to search for a free memory block IE when process_id is -1 and see if the size of this block will work 
-    while (current) // will stop when current == nullptr 
-    {
-        if(current->process_id == -1 && current->block_size == size)
-        {
-            int former_size = current->block_size; // store the orginal size of the block
-            current->process_id = process_id; // assign the process ID to this block marking it for use
-            current->block_size = size; // update the size of this block to the asked for size
-
-            // we need to create a new block should there be unallocated memory
-            if(former_size > size)
-            {
-                MemoryBlock  *new_block = new MemoryBlock(-1, current->start_address + size, 
-                    former_size - size); // starts with the -1 (free) ID, it starts at the current address's start + the size, the size of this new block is the left over memory
-
-                new_block->next = current->next; //linking it back to the linked list 
-                current->next = new_block; // insert it AFTER the newly allocated block so it [allocated block] ... [new block]
-            }
-
-            std::cout << "Process " << process_id << " loaded into memory at address " << current->start_address << " with size " << size << ".\n";
-            return;
-        }
-
-        current = current->next; // addvance to the next node
-    } 
-
-    std::cout << "Process " << process_id << " waiting in NewJobQueue due to insufficient memory.\n";
-    
-} // END allocateMemory
