@@ -67,7 +67,33 @@
 *   4) Memory coalescing is now performed when searching for a free block of memory not only when a process can't be loaded
 *   5) By doing this we get less internal fragmentation and more memory is grouped together when possible
 * 
-*  COPPYING THE PCB ACROSS MULTUPLE SEGMENTS:
+*  NEW FUNCTIONS TO IMPLMENT:
+*  1) copyProcessToMemory(int *process_logical_address, int total_logical_memory_size, int * PCB, int *main_memory) // I'll have to change this to fit my data scheme 
+*  2) translateLogicalAddressToPhysicalAddress(int logical_address, int *PCB)
+*
+* FLOW OF THE PROGRAM:
+* 1) Initialize the main memory as a single large free block
+* 2) For each job in the NewJobQueue:
+*   a) Attempt to allocate multiple non-contiguous blocks of memory who's total size fits the process memory requirement needs
+*   b) As the search is done for the block, coalesce any adjacent free blocks of memory that are found 
+*   c) If the memory is available:
+*       i) Allocate the memory of atleast 13 integers to hold the segemnt table
+*       ii) Allocate the segments of memory to the process
+*       iii) Fill the segment table and complete the PCB
+*       iv) Copy the segments of the PCB (segment table + metadata + instructions + data) into the allocated segemnts 
+*       v) Now, the PCB metadata could be stored across several blocks of memory 
+*       vi) Push to the ready queue
+*   d) If the memory is not available:
+*       i) Leave the job in the NewJobQueue
+* 3) Execute jobs from the ReadyQueue following the same flow in project 2
+* 4) For each instruction:
+*   a) use the segment table to translate the logical address to a physical address
+*   b) Validate the address
+* 5) Upon job termination:
+*   a) Free the memory blocks allocated to the process
+*   b) update the memory linked list 
+* 6) After a job terminates, check the NewJobQueue for any jobs that could be loaded now
+* 7) Do this until all jobs are done
 */
 
 
