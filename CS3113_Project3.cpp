@@ -47,6 +47,24 @@
 *  
 */
 
+/*
+* For Project 4 we've been asked to change the memory allocation which will now allow for non-contiguous memory allocation. Meaning a process
+* can be split into multiple blocks of memory. 
+* To make these changes we need to allow for a segment table to be created for each process and this will be stored with the PCB
+* I think I can make this an unordered map and would like to do so since it will be easier to access the data (i won't have to implement the structure) 
+* I also won't have to bring in any new libraries to do this which is a good practice to get into. 
+* 
+*   ASSUMPTIONS:
+*   1) Each process can only have at most 6 segments
+*   2) The segment table + it's length must fit in a single memory hole of atleast 13 integers
+*   3) If no such hole exists then the process stays in the NewJobQueue
+*   4) The segment table must be contiguous in memory (no segemnt table for the segment table)
+*
+*   DMA CHANGES FROM PROJECT 3:
+*   1)
+*/
+
+
 // ================================
 // Function Prototypes
 // ================================
