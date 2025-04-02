@@ -1,236 +1,0 @@
-Insufficient memory for Process 7. Attempting memory coalesci							      |	Insufficient memory for Process 6. Attempting memory coalesci								
-Process 7 waiting in NewJobQueue due to insufficient memory.							      |	Process 6 waiting in NewJobQueue due to insufficient memory.								
-Process 8 loaded into memory at address 0 with size 344.							      |	Process 6 loaded into memory at address 267 with size 277.								
-Process 9 loaded into memory at address 1779 with size 264.							      |	Insufficient memory for Process 7. Attempting memory coalesci								
-Process 10 loaded into memory at address 344 with size 215.							      |	Process 7 waiting in NewJobQueue due to insufficient memory.								
-Insufficient memory for Process 6. Attempting memory coalesci							      <
-Process 6 waiting in NewJobQueue due to insufficient memory.							      <
-Process 8 has moved to Running.							      |	Process 6 has moved to Running.								
-Process 8 issued an IOInterrupt and moved to the IOWaitingQue							      |	stored								
-Process 9 has moved to Running.							      <
-Process 9 has a TimeOUT interrupt and is moved to the ReadyQu							      |	Process 6 has a TimeOUT interrupt and is moved to the ReadyQu								
-print							      <
-Process 8 completed I/O and is moved to the ReadyQueue.							      <
-Process 10 has moved to Running.							      <
-Process 10 issued an IOInterrupt and moved to the IOWaitingQu							      <
-print							      <
-Process 10 completed I/O and is moved to the ReadyQueue.							      <
-Process 9 has moved to Running.							      |	Process 6 has moved to Running.								
-loaded							      |	compute								
-loaded							      |	Process 6 has a TimeOUT interrupt and is moved to the ReadyQu								
-Process 9 issued an IOInterrupt and moved to the IOWaitingQue							      <
-Process 8 has moved to Running.							      <
-loaded							      <
-compute							      <
-Process 8 has a TimeOUT interrupt and is moved to the ReadyQu							      <
-print							      |	Process 6 has moved to Running.								
-Process 9 completed I/O and is moved to the ReadyQueue.							      <
-Process 10 has moved to Running.							      <
-Process 10 issued an IOInterrupt and moved to the IOWaitingQu							      |	loaded								
-							      >	stored								
-							      >	loaded								
-							      >	Process 6 has a TimeOUT interrupt and is moved to the ReadyQu								
-print							      <
-Process 10 completed I/O and is moved to the ReadyQueue.							      <
-Process 8 has moved to Running.							      <
-Process 8 issued an IOInterrupt and moved to the IOWaitingQue							      <
-Total CPU Cycles Consumed: 306							      |	Total CPU Cycles Consumed: 300								
-Process 4 terminated. Entered running state at: 8. Terminated							      |	Process 4 terminated. Entered running state at: 8. Terminated								
-print							      |	Process 6 has moved to Running.								
-Process 8 completed I/O and is moved to the ReadyQueue.							      <
-Process 9 has moved to Running.							      <
-Process 9 has a TimeOUT interrupt and is moved to the ReadyQu							      |	Process 6 has a TimeOUT interrupt and is moved to the ReadyQu								
-Process 10 has moved to Running.							      <
-loaded							      <
-loaded							      <
-loaded							      <
-Process ID: 10							      <
-State: TERMINATED							      <
-Program Counter: 353							      <
-Instruction Base: 354							      <
-Data Base: 361							      <
-Memory Limit: 205							      <
-CPU Cycles Used: 19							      <
-Register Value: -1							      <
-Max Memory Needed: 205							      <
-Main Memory Base: 344							      <
-Total CPU Cycles Consumed: 112							      <
-Process 10 terminated. Entered running state at: 238. Termina							      <
-Process 10 terminated and released memory from 344 to 558.							      <
-Insufficient memory for Process 6. Attempting memory coalesci							      <
-Process 6 waiting in NewJobQueue due to insufficient memory.							      <
-Total CPU Cycles Consumed: 335							      |	Total CPU Cycles Consumed: 329								
-Process 5 terminated. Entered running state at: 19. Terminate							      |	Process 5 terminated. Entered running state at: 19. Terminate								
-Process 7 loaded into memory at address 1015 with size 416.							      |	Process 7 loaded into memory at address 1276 with size 416.								
-Process 6 loaded into memory at address 1431 with size 277.							      |	Insufficient memory for Process 8. Attempting memory coalesci								
-Process 8 has moved to Running.							      |	Memory coalesced. Process 8 can now be loaded.								
-stored							      |	Process 8 loaded into memory at address 1692 with size 344.								
-Process ID: 8							      |	Process 9 loaded into memory at address 0 with size 264.								
-State: TERMINATED							      |	Process 10 loaded into memory at address 1015 with size 215.								
-Program Counter: 9							      |	Process 6 has moved to Running.								
-Instruction Base: 10							      |	compute								
-Data Base: 15							      |	Process 6 has a TimeOUT interrupt and is moved to the ReadyQu								
-Memory Limit: 334							      <
-CPU Cycles Used: 27							      <
-Register Value: 38							      <
-Max Memory Needed: 334							      <
-Main Memory Base: 0							      <
-Total CPU Cycles Consumed: 136							      <
-Process 8 terminated. Entered running state at: 221. Terminat							      <
-Process 8 terminated and released memory from 0 to 343.							      <
-Process 9 has moved to Running.							      <
-Process 9 issued an IOInterrupt and moved to the IOWaitingQue							      <
-							      >	Process 8 has moved to Running.								
-							      >	Process 8 issued an IOInterrupt and moved to the IOWaitingQue								
-							      >	Process 9 has moved to Running.								
-							      >	compute								
-							      >	Process 9 has a TimeOUT interrupt and is moved to the ReadyQu								
-Process 9 completed I/O and is moved to the ReadyQueue.							      |	Process 8 completed I/O and is moved to the ReadyQueue.								
-							      >	Process 10 has moved to Running.								
-							      >	Process 10 issued an IOInterrupt and moved to the IOWaitingQu								
-stored							      |	Process 6 issued an IOInterrupt and moved to the IOWaitingQue								
-compute							      <
-Process 6 has a TimeOUT interrupt and is moved to the ReadyQu							      <
-							      >	print								
-							      >	Process 10 completed I/O and is moved to the ReadyQueue.								
-							      >	print								
-							      >	Process 6 completed I/O and is moved to the ReadyQueue.								
-Process ID: 9							      |	loaded								
-State: TERMINATED							      |	loaded								
-Program Counter: 1788							      |	Process 9 issued an IOInterrupt and moved to the IOWaitingQue								
-Instruction Base: 1789							      |	Process 8 has moved to Running.								
-Data Base: 1796							      |	loaded								
-Memory Limit: 254							      |	compute								
-CPU Cycles Used: 43							      |	Process 8 has a TimeOUT interrupt and is moved to the ReadyQu								
-Register Value: -1							      |	Process 10 has moved to Running.								
-Max Memory Needed: 254							      |	stored								
-Main Memory Base: 1779							      |	stored								
-Total CPU Cycles Consumed: 183							      |	Process 10 issued an IOInterrupt and moved to the IOWaitingQu								
-Process 9 terminated. Entered running state at: 223. Terminat							      |	print								
-Process 9 terminated and released memory from 1779 to 2042.							      |	Process 9 completed I/O and is moved to the ReadyQueue.								
-							      >	print								
-							      >	Process 10 completed I/O and is moved to the ReadyQueue.								
-Total CPU Cycles Consumed: 430							      |	Total CPU Cycles Consumed: 450								
-Process 3 terminated. Entered running state at: 6. Terminated							      |	Process 3 terminated. Entered running state at: 6. Terminated								
-							      >	Process 8 has moved to Running.								
-							      >	Process 8 issued an IOInterrupt and moved to the IOWaitingQue								
-							      >	Process 9 has moved to Running.								
-							      >	loaded								
-							      >	compute								
-							      >	Process 9 has a TimeOUT interrupt and is moved to the ReadyQu								
-							      >	print								
-							      >	Process 8 completed I/O and is moved to the ReadyQueue.								
-stored							      |	compute								
-stored							      |	Process 6 has a TimeOUT interrupt and is moved to the ReadyQu								
-							      >	Process 10 has moved to Running.								
-stored							      <
-Process 6 has a TimeOUT interrupt and is moved to the ReadyQu							      |	loaded								
-							      >	Process ID: 10								
-							      >	State: TERMINATED								
-							      >	Program Counter: 1024								
-							      >	Instruction Base: 1025								
-							      >	Data Base: 1032								
-							      >	Memory Limit: 205								
-							      >	CPU Cycles Used: 19								
-							      >	Register Value: -1								
-							      >	Max Memory Needed: 205								
-							      >	Main Memory Base: 1015								
-							      >	Total CPU Cycles Consumed: 103								
-							      >	Process 10 terminated. Entered running state at: 385. Termina								
-							      >	Process 10 terminated and released memory from 1015 to 1229.								
-							      >	Process 9 has moved to Running.								
-							      >	Process 9 issued an IOInterrupt and moved to the IOWaitingQue								
-							      >	Process 8 has moved to Running.								
-							      >	stored								
-							      >	Process ID: 8								
-							      >	State: TERMINATED								
-							      >	Program Counter: 1701								
-							      >	Instruction Base: 1702								
-							      >	Data Base: 1707								
-							      >	Memory Limit: 334								
-							      >	CPU Cycles Used: 27								
-							      >	Register Value: 38								
-							      >	Max Memory Needed: 334								
-							      >	Main Memory Base: 1692								
-							      >	Total CPU Cycles Consumed: 135								
-							      >	Process 8 terminated. Entered running state at: 368. Terminat								
-							      >	Process 8 terminated and released memory from 1692 to 2035.								
-compute							      |	Process 6 issued an IOInterrupt and moved to the IOWaitingQue								
-Process 6 has a TimeOUT interrupt and is moved to the ReadyQu							      <
-Process 6 has moved to Running.							      <
-compute							      <
-Process 6 has a TimeOUT interrupt and is moved to the ReadyQu							      <
-Process 7 completed I/O and is moved to the ReadyQueue.							      |	Process 9 completed I/O and is moved to the ReadyQueue.								
-							      >	Process 9 has moved to Running.								
-							      >	Process ID: 9								
-							      >	State: TERMINATED								
-							      >	Program Counter: 9								
-							      >	Instruction Base: 10								
-							      >	Data Base: 17								
-							      >	Memory Limit: 254								
-							      >	CPU Cycles Used: 43								
-							      >	Register Value: -1								
-							      >	Max Memory Needed: 254								
-							      >	Main Memory Base: 0								
-							      >	Total CPU Cycles Consumed: 142								
-							      >	Process 9 terminated. Entered running state at: 370. Terminat								
-							      >	Process 9 terminated and released memory from 0 to 263.								
-							      >	print								
-							      >	Process 6 completed I/O and is moved to the ReadyQueue.								
-							      >	print								
-							      >	Process 7 completed I/O and is moved to the ReadyQueue.								
-compute							      |	Process 6 issued an IOInterrupt and moved to the IOWaitingQue								
-Process 6 has a TimeOUT interrupt and is moved to the ReadyQu							      <
-Process 7 completed I/O and is moved to the ReadyQueue.							      |	Process 6 completed I/O and is moved to the ReadyQueue.								
-compute							      |	stored								
-Process 6 has a TimeOUT interrupt and is moved to the ReadyQu							      |	Process ID: 6								
-							      >	State: TERMINATED								
-							      >	Program Counter: 276								
-							      >	Instruction Base: 277								
-							      >	Data Base: 296								
-							      >	Memory Limit: 267								
-							      >	CPU Cycles Used: 87								
-							      >	Register Value: 52								
-							      >	Max Memory Needed: 267								
-							      >	Main Memory Base: 267								
-							      >	Total CPU Cycles Consumed: 321								
-							      >	Process 6 terminated. Entered running state at: 221. Terminat								
-							      >	Process 6 terminated and released memory from 267 to 543.								
-							      >	print								
-							      >	Process 7 completed I/O and is moved to the ReadyQueue.								
-Process 6 has moved to Running.							      <
-loaded							      <
-Process 6 issued an IOInterrupt and moved to the IOWaitingQue							      <
-Program Counter: 1024							      |	Program Counter: 1285								
-Instruction Base: 1025							      |	Instruction Base: 1286								
-Data Base: 1040							      |	Data Base: 1301								
-Register Value: 24							      |	Register Value: -1								
-Main Memory Base: 1015							      |	Main Memory Base: 1276								
-Total CPU Cycles Consumed: 179							      |	Total CPU Cycles Consumed: 199								
-Process 7 terminated. Entered running state at: 361. Terminat							      |	Process 7 terminated. Entered running state at: 358. Terminat								
-Process 7 terminated and released memory from 1015 to 1430.							      |	Process 7 terminated and released memory from 1276 to 1691.								
-print							      <
-Process 6 completed I/O and is moved to the ReadyQueue.							      <
-Process 6 has moved to Running.							      <
-Process 6 issued an IOInterrupt and moved to the IOWaitingQue							      <
-print							      <
-Process 6 completed I/O and is moved to the ReadyQueue.							      <
-Process 6 has moved to Running.							      <
-Process 6 issued an IOInterrupt and moved to the IOWaitingQue							      <
-print							      <
-Process 6 completed I/O and is moved to the ReadyQueue.							      <
-Process 6 has moved to Running.							      <
-stored							      <
-Process ID: 6							      <
-State: TERMINATED							      <
-Program Counter: 1440							      <
-Instruction Base: 1441							      <
-Data Base: 1460							      <
-Memory Limit: 267							      <
-CPU Cycles Used: 87							      <
-Register Value: 52							      <
-Max Memory Needed: 267							      <
-Main Memory Base: 1431							      <
-Total CPU Cycles Consumed: 186							      <
-Process 6 terminated. Entered running state at: 371. Terminat							      <
-Process 6 terminated and released memory from 1431 to 1707.							      <
