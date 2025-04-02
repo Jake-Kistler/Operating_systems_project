@@ -61,7 +61,13 @@
 *   4) The segment table must be contiguous in memory (no segemnt table for the segment table)
 *
 *   DMA CHANGES FROM PROJECT 3:
-*   1)
+*   1) A process may be split into multiple blocks of memory
+*   2) Each allocated block of memory becomes it's own segment in the segment table
+*   3) If we can't find a block of memory that is large enough to load a process it stays in the NewJobQueue
+*   4) Memory coalescing is now performed when searching for a free block of memory not only when a process can't be loaded
+*   5) By doing this we get less internal fragmentation and more memory is grouped together when possible
+* 
+*  COPPYING THE PCB ACROSS MULTUPLE SEGMENTS:
 */
 
 
