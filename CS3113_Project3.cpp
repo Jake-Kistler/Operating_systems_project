@@ -97,7 +97,8 @@
 *
 * ** SOME THOUGHTS ON THE SEGMENT TABLE **
 * The segment table from the project " Each process can have up to 6 segments, and the segment table itself, along with its length value,
-* must be stored contiguously in memory
+* must be stored contiguously in memory(mem test shows that struct data members are stored sequentally)
+*
 */
 
 
@@ -114,6 +115,7 @@ void load_jobs_to_memory(std::queue<PCB>& new_job_queue,std::queue<int>& ready_q
 void execute_cpu(int start_address,int* main_memory,MemoryBlock*& memory_head,std::queue<PCB>& new_job_queue,std::queue<int>& ready_queue);
 void check_io_waiting_queue(std::queue<int>& ready_queue, int* main_memory);
 
+constexpr int MAX_SEGMENTS = 6; // This magic six comes from the project 4 file
 
 struct PCB
 {
@@ -127,6 +129,11 @@ struct PCB
     int register_value;
     int max_memory_needed;
     int main_memory_base;
+
+    // New data fields for project 4
+    int number_of_segments;
+    int segment_table_size; // This will be always 2 * number of segments beacuse we have the start address of the segment and the total size of the segment, this will be used later.
+    int segment_table[MAX_SEGMENTS * 2]; // the array that will act as our segment table stored like [start 0, size 0, start 1, size 1...]
 };
 
 int global_clock = 0;
@@ -134,6 +141,8 @@ bool timeout_occurred = false;
 bool memory_freed = false;
 std::queue<std::tuple<PCB, int, int, int>> io_waiting_queue; // (process, start_address, param_offset, wait_time)
 int context_switch_time, cpu_allocated;
+
+
 
 std::unordered_map<int, int> opcode_params = 
 {
