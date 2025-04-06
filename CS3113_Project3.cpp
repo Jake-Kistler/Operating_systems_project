@@ -94,6 +94,10 @@
 *   b) update the memory linked list 
 * 6) After a job terminates, check the NewJobQueue for any jobs that could be loaded now
 * 7) Do this until all jobs are done
+*
+* ** SOME THOUGHTS ON THE SEGMENT TABLE **
+* The segment table from the project " Each process can have up to 6 segments, and the segment table itself, along with its length value,
+* must be stored contiguously in memory
 */
 
 
