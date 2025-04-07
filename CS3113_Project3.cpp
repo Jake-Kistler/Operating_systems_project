@@ -341,123 +341,136 @@ int main(int argc, char **argv)
 //    return -1; // No block big enough
 //}
 
-bool allocate_segments(MemoryBlock*& memory_head,int process_id,int total_memory_needed,std::vector<segment>& out_segments,int& segment_table_start)
+void load_jobs_to_memory(std::queue<PCB>& new_job_queue,
+                         std::queue<int>& ready_queue,
+                         int* main_memory,
+                         MemoryBlock*& memory_head)
 {
-    out_segments.clear();
-    segment_table_start = -1;
-    int accumulated = 0;
+    int new_job_queue_size = static_cast<int>(new_job_queue.size());
+    std::queue<PCB> temp_queue;
 
-    // Step 1: Coalesce adjacent free blocks
-    MemoryBlock* current = memory_head;
-
-    while (current && current->next)
+    for (int i = 0; i < new_job_queue_size; i++)
     {
-        if (current->process_id == -1 && current->next->process_id == -1)
-      {
-            current->size += current->next->size;
-            current->next = current->next->next;
-        }
-        else
+        PCB process = new_job_queue.front();
+        new_job_queue.pop();
+
+        bool coalesced_for_this_process = false;
+        std::vector<segment> segments;
+        int segment_table_start;
+
+        bool success = allocate_segments(memory_head, process.process_id,
+                                         process.max_memory_needed,
+                                         segments,
+                                         segment_table_start);
+
+        if (!success)
         {
-            current = current->next;
-        }
-    }
+            std::cout << "Insufficient memory for Process "
+                      << process.process_id << ". Attempting memory coalescing." << std::endl;
+            coalesce_memory(memory_head);
 
-    // Step 2: Find a block for the segment table (13 ints)
-    current = memory_head;
-    MemoryBlock* prev = nullptr;
-
-    while (current)
-    {
-        if (current->process_id == -1 && current->size >= 13)
-      {
-            segment_table_start = current->start_address;
-
-            if (current->size == 13)
-            {
-                current->process_id = process_id;
-            }
-            else
-            {
-                // Shrink and insert allocated block for the segment table
-                MemoryBlock* newBlock = new MemoryBlock(process_id, current->start_address, 13);
-                newBlock->next = current;
-
-                if (prev)
-                {
-                    prev->next = newBlock;
-                }
-                else
-                {
-                    memory_head = newBlock;
-                }
-
-                current->start_address += 13;
-                current->size -= 13;
-            }
-
-            break;
+            success = allocate_segments(memory_head, process.process_id,process.max_memory_needed,segments,segment_table_start);
+            coalesced_for_this_process = success;
         }
 
-        prev = current;
-        current = current->next;
-    }
+        if (!success)
+        {
+            std::cout << "Process " << process.process_id
+                      << " waiting in NewJobQueue due to insufficient memory." << std::endl;
+            temp_queue.push(process);
+            continue;
+        }
 
-    if (segment_table_start == -1)
-    {
-        return false; // Couldn't find space for segment table
-    }
+        // Store segment table info in PCB
+        process.segment_table_size = 2 * segments.size();
+        process.number_of_segments = segments.size();
+        for (int j = 0; j < process.number_of_segments; ++j)
+        {
+            process.segment_table[2 * j] = segments[j].start_address;
+            process.segment_table[2 * j + 1] = segments[j].size;
+        }
 
-    // Step 3: Allocate non-contiguous memory segments
-    current = memory_head;
-    prev = nullptr;
-    int remaining = total_memory_needed;
+        // Segment table goes in memory at segment_table_start
+        process.main_memory_base = segment_table_start;
 
-    while (current && remaining > 0)
-    {
-        if (current->process_id == -1)
-      {
-            int useSize = (current->size < remaining) ? current->size : remaining;
-
-            // Track the segment in the output vector
-            out_segments.push_back({current->start_address, useSize});
-            remaining -= useSize;
-
-            if (useSize == current->size)
+        // Determine where to write the instructions
+        process.instruction_base = -1;
+        for (int j = 0; j < process.number_of_segments; ++j)
+        {
+            int address = process.segment_table[2 * j];
+            int size = process.segment_table[2 * j + 1];
+            if (size >= static_cast<int>(process_instructions[process.process_id].size()))
             {
-                current->process_id = process_id;
-            }
-            else
-            {
-                // Shrink current and insert a new allocated block
-                MemoryBlock* newBlock = new MemoryBlock(process_id, current->start_address, useSize);
-                newBlock->next = current;
-
-                if (prev)
-                {
-                    prev->next = newBlock;
-                }
-                else
-                {
-                    memory_head = newBlock;
-                }
-
-                current->start_address += useSize;
-                current->size -= useSize;
+                process.instruction_base = address;
+                break;
             }
         }
 
-        prev = current;
-        current = current->next;
+        // Just pick next available segment for data after instruction base
+        process.data_base = -1;
+        for (int j = 0; j < process.number_of_segments; ++j)
+        {
+            int addr = process.segment_table[2 * j];
+            if (addr != process.instruction_base)
+            {
+                process.data_base = addr;
+                break;
+            }
+        }
+
+        // Flatten the PCB into memory starting at segment_table_start
+        main_memory[segment_table_start + 0] = process.process_id;
+        main_memory[segment_table_start + 1] = state_encoding[process.state];
+        main_memory[segment_table_start + 2] = process.program_counter;
+        main_memory[segment_table_start + 3] = process.instruction_base;
+        main_memory[segment_table_start + 4] = process.data_base;
+        main_memory[segment_table_start + 5] = process.memory_limit;
+        main_memory[segment_table_start + 6] = process.cpu_cycles_used;
+        main_memory[segment_table_start + 7] = process.register_value;
+        main_memory[segment_table_start + 8] = process.max_memory_needed;
+        main_memory[segment_table_start + 9] = process.main_memory_base;
+        main_memory[segment_table_start + 10] = process.number_of_segments;
+        main_memory[segment_table_start + 11] = process.segment_table_size;
+
+        for (int k = 0; k < process.segment_table_size; ++k)
+        {
+            main_memory[segment_table_start + 12 + k] = process.segment_table[k];
+        }
+
+        // Store instructions
+        std::vector<std::vector<int>> instrs = process_instructions[process.process_id];
+        int write_index = process.instruction_base;
+
+        for (const auto& instr : instrs)
+        {
+            main_memory[write_index++] = instr[0]; // opcode
+        }
+
+        for (const auto& instr : instrs)
+        {
+            for (int k = 1; k < static_cast<int>(instr.size()); k++)
+            {
+                main_memory[write_index++] = instr[k]; // parameters
+            }
+        }
+
+        std::cout << "Process " << process.process_id
+                  << " loaded into memory at segment table address "
+                  << segment_table_start << " with "
+                  << process.number_of_segments << " segments." << std::endl;
+
+        // Push to ready queue
+        ready_queue.push(process.main_memory_base);
     }
 
-    if (remaining > 0)
+    // Return failed jobs to the queue
+    while (!temp_queue.empty())
     {
-        return false; // Not enough memory
+        new_job_queue.push(temp_queue.front());
+        temp_queue.pop();
     }
-
-    return true;
 }
+
 
 
 void free_memory(MemoryBlock *&memory_head, int *main_memory, int process_id)
@@ -480,22 +493,24 @@ void free_memory(MemoryBlock *&memory_head, int *main_memory, int process_id)
     }
 }
 
-void coalesce_memory(MemoryBlock *&memory_head)
+void coalesce_memory(MemoryBlock*& head)
 {
-    MemoryBlock *current = memory_head;
+    MemoryBlock* current = head;
     while (current && current->next)
     {
-        MemoryBlock *next = current->next;
-        if (current->process_id == -1 && next->process_id == -1)
+        if (current->process_id == -1 && current->next->process_id == -1 &&
+            current->start_address + current->size == current->next->start_address)
         {
-            current->size += next->size;
-            current->next = next->next;
-            delete next;
-            continue;
+            current->size += current->next->size;
+            current->next = current->next->next;
         }
-        current = current->next;
+        else
+        {
+            current = current->next;
+        }
     }
 }
+
 
 //void load_jobs_to_memory(std::queue<PCB>& new_job_queue,std::queue<int> &ready_queue,int *main_memory,MemoryBlock *&memory_head)
 //{
@@ -596,6 +611,103 @@ void coalesce_memory(MemoryBlock *&memory_head)
 //        temp_queue.pop();
 //    }
 //}
+
+bool allocate_segments(MemoryBlock*& memory_head, int process_id, int total_memory_needed,
+                       std::vector<segment>& out_segments, int& segment_table_start)
+{
+    out_segments.clear();
+    segment_table_start = -1;
+
+    // Step 1: Coalesce adjacent free blocks
+    MemoryBlock* current = memory_head;
+    while (current && current->next)
+    {
+        if (current->process_id == -1 && current->next->process_id == -1 &&
+            current->start_address + current->size == current->next->start_address)
+        {
+            current->size += current->next->size;
+            current->next = current->next->next;
+        }
+        else
+        {
+            current = current->next;
+        }
+    }
+
+    // Step 2: Find space for the segment table (13 ints)
+    current = memory_head;
+    MemoryBlock* prev = nullptr;
+
+    while (current)
+    {
+        if (current->process_id == -1 && current->size >= 13)
+        {
+            segment_table_start = current->start_address;
+
+            if (current->size == 13)
+            {
+                current->process_id = process_id;
+            }
+            else
+            {
+                MemoryBlock* newBlock = new MemoryBlock(process_id, current->start_address, 13);
+                newBlock->next = current;
+
+                if (prev)
+                    prev->next = newBlock;
+                else
+                    memory_head = newBlock;
+
+                current->start_address += 13;
+                current->size -= 13;
+            }
+            break;
+        }
+        prev = current;
+        current = current->next;
+    }
+
+    if (segment_table_start == -1)
+        return false;
+
+    // Step 3: Allocate the segments
+    current = memory_head;
+    prev = nullptr;
+    int remaining = total_memory_needed;
+
+    while (current && remaining > 0)
+    {
+        if (current->process_id == -1)
+        {
+            int useSize = std::min(current->size, remaining);
+            out_segments.push_back({current->start_address, useSize});
+            remaining -= useSize;
+
+            if (useSize == current->size)
+            {
+                current->process_id = process_id;
+            }
+            else
+            {
+                MemoryBlock* newBlock = new MemoryBlock(process_id, current->start_address, useSize);
+                newBlock->next = current;
+
+                if (prev)
+                    prev->next = newBlock;
+                else
+                    memory_head = newBlock;
+
+                current->start_address += useSize;
+                current->size -= useSize;
+            }
+        }
+
+        prev = current;
+        current = current->next;
+    }
+
+    return (remaining == 0);
+}
 
 
 
