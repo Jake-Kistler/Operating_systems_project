@@ -108,12 +108,7 @@
 struct PCB;
 struct MemoryBlock;
 
-int allocate_memory(MemoryBlock*& memory_head, int process_id, int size);
-void free_memory(MemoryBlock*& memory_head, int* main_memory, int process_id);
-void coalesce_memory(MemoryBlock*& memory_head);
-void load_jobs_to_memory(std::queue<PCB>& new_job_queue,std::queue<int>& ready_queue,int* main_memory,MemoryBlock*& memory_head);
-void execute_cpu(int start_address,int* main_memory,MemoryBlock*& memory_head,std::queue<PCB>& new_job_queue,std::queue<int>& ready_queue);
-void check_io_waiting_queue(std::queue<int>& ready_queue, int* main_memory);
+
 
 constexpr int MAX_SEGMENTS = 6; // This magic six comes from the project 4 file
 
@@ -134,6 +129,13 @@ struct PCB
     int number_of_segments;
     int segment_table_size; // This will be always 2 * number of segments beacuse we have the start address of the segment and the total size of the segment, this will be used later.
     int segment_table[MAX_SEGMENTS * 2]; // the array that will act as our segment table stored like [start 0, size 0, start 1, size 1...]
+};
+
+// This new struct makes the tracking for memory easier
+struct segment
+{
+  int start_address;
+  int size;
 };
 
 int global_clock = 0;
@@ -172,7 +174,14 @@ std::unordered_map<int, int> process_start_times;
 // Key: processID, Value: param_offset
 std::unordered_map<int, int> param_offsets;
 
-
+// Moved so all of the args (segemnt and PCB are declared BEOFRE my prototypes)
+//int allocate_memory(MemoryBlock*& memory_head, int process_id, int size);
+bool allocate_segments(MemoryBlock*& memory_head,int process_id,int total_memory_needed,std::vector<segment>& out_segments,int& segment_table_start);
+void free_memory(MemoryBlock*& memory_head, int* main_memory, int process_id);
+void coalesce_memory(MemoryBlock*& memory_head);
+void load_jobs_to_memory(std::queue<PCB>& new_job_queue,std::queue<int>& ready_queue,int* main_memory,MemoryBlock*& memory_head);
+void execute_cpu(int start_address,int* main_memory,MemoryBlock*& memory_head,std::queue<PCB>& new_job_queue,std::queue<int>& ready_queue);
+void check_io_waiting_queue(std::queue<int>& ready_queue, int* main_memory);
 
 
 int main(int argc, char **argv)
@@ -286,47 +295,170 @@ int main(int argc, char **argv)
 // Definitions
 // ================================
 
-int allocate_memory(MemoryBlock*& memory_head, int process_id, int size)
+
+// This function needs to change to match what we've been asked to do in project 4. We need to combine free memory as we search
+// Also, we need to store the now larger PCB. We can also track each of the free segments of memory in a strcture which will help when we have to go non contineous with our memory
+
+//int allocate_memory(MemoryBlock*& memory_head, int process_id, int size)
+//{
+//    MemoryBlock* current = memory_head;
+//    MemoryBlock* prev = nullptr;
+//
+//    while (current)
+//    {
+//        // Found a free block big enough
+//        if (current->process_id == -1 && current->size >= size)
+//        {
+//            int allocated_address = current->start_address;
+//            if (current->size == size)
+//            {
+//                current->process_id = process_id;
+//            }
+//            else
+//            {
+//                // Split
+//                MemoryBlock* new_block = new MemoryBlock(process_id, current->start_address, size);
+//                new_block->next = current;
+//
+//                if (prev)
+//                {
+//                    prev->next = new_block;
+//                }
+//                else
+//                {
+//                    memory_head = new_block;
+//                }
+//
+//                current->start_address += size;
+//                current->size -= size;
+//                return allocated_address;
+//            }
+//            return allocated_address;
+//        }
+//        prev = current;
+//        current = current->next;
+//    }
+//    return -1; // No block big enough
+//}
+
+bool allocate_segments(MemoryBlock*& memory_head,int process_id,int total_memory_needed,std::vector<segment>& out_segments,int& segment_table_start)
 {
+    out_segments.clear();
+    segment_table_start = -1;
+    int accumulated = 0;
+
+    // Step 1: Coalesce adjacent free blocks
     MemoryBlock* current = memory_head;
+
+    while (current && current->next)
+    {
+        if (current->process_id == -1 && current->next->process_id == -1)
+      {
+            current->size += current->next->size;
+            current->next = current->next->next;
+        }
+        else
+        {
+            current = current->next;
+        }
+    }
+
+    // Step 2: Find a block for the segment table (13 ints)
+    current = memory_head;
     MemoryBlock* prev = nullptr;
 
     while (current)
     {
-        // Found a free block big enough
-        if (current->process_id == -1 && current->size >= size)
-        {
-            int allocated_address = current->start_address;
-            if (current->size == size)
+        if (current->process_id == -1 && current->size >= 13)
+      {
+            segment_table_start = current->start_address;
+
+            if (current->size == 13)
             {
                 current->process_id = process_id;
             }
             else
             {
-                // Split
-                MemoryBlock* new_block = new MemoryBlock(process_id, current->start_address, size);
-                new_block->next = current;
+                // Shrink and insert allocated block for the segment table
+                MemoryBlock* newBlock = new MemoryBlock(process_id, current->start_address, 13);
+                newBlock->next = current;
 
                 if (prev)
                 {
-                    prev->next = new_block;
+                    prev->next = newBlock;
                 }
                 else
                 {
-                    memory_head = new_block;
+                    memory_head = newBlock;
                 }
 
-                current->start_address += size;
-                current->size -= size;
-                return allocated_address;
+                current->start_address += 13;
+                current->size -= 13;
             }
-            return allocated_address;
+
+            break;
         }
+
         prev = current;
         current = current->next;
     }
-    return -1; // No block big enough
+
+    if (segment_table_start == -1)
+    {
+        return false; // Couldn't find space for segment table
+    }
+
+    // Step 3: Allocate non-contiguous memory segments
+    current = memory_head;
+    prev = nullptr;
+    int remaining = total_memory_needed;
+
+    while (current && remaining > 0)
+    {
+        if (current->process_id == -1)
+      {
+            int useSize = (current->size < remaining) ? current->size : remaining;
+
+            // Track the segment in the output vector
+            out_segments.push_back({current->start_address, useSize});
+            remaining -= useSize;
+
+            if (useSize == current->size)
+            {
+                current->process_id = process_id;
+            }
+            else
+            {
+                // Shrink current and insert a new allocated block
+                MemoryBlock* newBlock = new MemoryBlock(process_id, current->start_address, useSize);
+                newBlock->next = current;
+
+                if (prev)
+                {
+                    prev->next = newBlock;
+                }
+                else
+                {
+                    memory_head = newBlock;
+                }
+
+                current->start_address += useSize;
+                current->size -= useSize;
+            }
+        }
+
+        prev = current;
+        current = current->next;
+    }
+
+    if (remaining > 0)
+    {
+        return false; // Not enough memory
+    }
+
+    return true;
 }
+
 
 void free_memory(MemoryBlock *&memory_head, int *main_memory, int process_id)
 {
