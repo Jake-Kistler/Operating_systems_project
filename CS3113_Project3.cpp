@@ -497,105 +497,107 @@ void coalesce_memory(MemoryBlock *&memory_head)
     }
 }
 
-void load_jobs_to_memory(std::queue<PCB>& new_job_queue,std::queue<int> &ready_queue,int *main_memory,MemoryBlock *&memory_head)
-{
-    int new_job_queue_size = static_cast<int>(new_job_queue.size());
-    std::queue<PCB> temp_queue;
+//void load_jobs_to_memory(std::queue<PCB>& new_job_queue,std::queue<int> &ready_queue,int *main_memory,MemoryBlock *&memory_head)
+//{
+//    int new_job_queue_size = static_cast<int>(new_job_queue.size());
+//    std::queue<PCB> temp_queue;
+//
+//    for (int i = 0; i < new_job_queue_size; i++)
+//    {
+//        PCB process = new_job_queue.front();
+//        new_job_queue.pop();
+//
+//        bool coalesced_for_this_process = false;
+//        int total_memory_needed = process.max_memory_needed + 10;
+//        int allocated_address = allocate_memory(memory_head, process.process_id, total_memory_needed);
+//
+//        if (allocated_address == -1)
+//        {
+//            std::cout << "Insufficient memory for Process "
+//                      << process.process_id << ". Attempting memory coalescing." << std::endl;
+//            coalesce_memory(memory_head);
+//
+//            allocated_address = allocate_memory(memory_head, process.process_id, total_memory_needed);
+//            coalesced_for_this_process = (allocated_address != -1);
+//
+//            if (allocated_address == -1)
+//            {
+//                std::cout << "Process " << process.process_id
+//                          << " waiting in NewJobQueue due to insufficient memory." << std::endl;
+//                temp_queue.push(process);
+//
+//                for (int j = i + 1; j < new_job_queue_size; j++)
+//                {
+//                    temp_queue.push(new_job_queue.front());
+//                    new_job_queue.pop();
+//                }
+//                break;
+//            }
+//        }
+//
+//        if (allocated_address != -1)
+//        {
+//            if (coalesced_for_this_process)
+//            {
+//                std::cout << "Memory coalesced. Process "
+//                          << process.process_id << " can now be loaded." << std::endl;
+//            }
+//
+//            process.main_memory_base = allocated_address;
+//            process.instruction_base = allocated_address + 10;
+//            process.data_base = process.instruction_base +
+//                                static_cast<int>(process_instructions[process.process_id].size());
+//
+//            // Store PCB metadata
+//            main_memory[allocated_address + 0] = process.process_id;
+//            main_memory[allocated_address + 1] = state_encoding[process.state];
+//            main_memory[allocated_address + 2] = process.program_counter;
+//            main_memory[allocated_address + 3] = process.instruction_base;
+//            main_memory[allocated_address + 4] = process.data_base;
+//            main_memory[allocated_address + 5] = process.memory_limit;
+//            main_memory[allocated_address + 6] = process.cpu_cycles_used;
+//            main_memory[allocated_address + 7] = process.register_value;
+//            main_memory[allocated_address + 8] = process.max_memory_needed;
+//            main_memory[allocated_address + 9] = process.main_memory_base;
+//
+//            // Store instructions: [[opcode, param1, param2], ...]
+//            std::vector<std::vector<int>> instrs = process_instructions[process.process_id];
+//            int write_index = process.instruction_base;
+//
+//            // First store opcodes
+//            for (const auto& instr : instrs)
+//            {
+//                main_memory[write_index++] = instr[0];
+//            }
+//
+//            // Then store parameters
+//            for (const auto& instr : instrs)
+//            {
+//                for (int k = 1; k < static_cast<int>(instr.size()); k++)
+//                {
+//                    main_memory[write_index++] = instr[k];
+//                }
+//            }
+//
+//            std::cout << "Process " << process.process_id
+//                      << " loaded into memory at address "
+//                      << allocated_address << " with size "
+//                      << total_memory_needed << "." << std::endl;
+//
+//            // Push to ready queue
+//            ready_queue.push(process.main_memory_base);
+//        }
+//    }
+//
+//    // Return failed jobs back
+//    while (!temp_queue.empty())
+//    {
+//        new_job_queue.push(temp_queue.front());
+//        temp_queue.pop();
+//    }
+//}
 
-    for (int i = 0; i < new_job_queue_size; i++)
-    {
-        PCB process = new_job_queue.front();
-        new_job_queue.pop();
 
-        bool coalesced_for_this_process = false;
-        int total_memory_needed = process.max_memory_needed + 10;
-        int allocated_address = allocate_memory(memory_head, process.process_id, total_memory_needed);
-
-        if (allocated_address == -1)
-        {
-            std::cout << "Insufficient memory for Process "
-                      << process.process_id << ". Attempting memory coalescing." << std::endl;
-            coalesce_memory(memory_head);
-
-            allocated_address = allocate_memory(memory_head, process.process_id, total_memory_needed);
-            coalesced_for_this_process = (allocated_address != -1);
-
-            if (allocated_address == -1)
-            {
-                std::cout << "Process " << process.process_id
-                          << " waiting in NewJobQueue due to insufficient memory." << std::endl;
-                temp_queue.push(process);
-
-                for (int j = i + 1; j < new_job_queue_size; j++)
-                {
-                    temp_queue.push(new_job_queue.front());
-                    new_job_queue.pop();
-                }
-                break;
-            }
-        }
-
-        if (allocated_address != -1)
-        {
-            if (coalesced_for_this_process)
-            {
-                std::cout << "Memory coalesced. Process "
-                          << process.process_id << " can now be loaded." << std::endl;
-            }
-
-            process.main_memory_base = allocated_address;
-            process.instruction_base = allocated_address + 10;
-            process.data_base = process.instruction_base +
-                                static_cast<int>(process_instructions[process.process_id].size());
-
-            // Store PCB metadata
-            main_memory[allocated_address + 0] = process.process_id;
-            main_memory[allocated_address + 1] = state_encoding[process.state];
-            main_memory[allocated_address + 2] = process.program_counter;
-            main_memory[allocated_address + 3] = process.instruction_base;
-            main_memory[allocated_address + 4] = process.data_base;
-            main_memory[allocated_address + 5] = process.memory_limit;
-            main_memory[allocated_address + 6] = process.cpu_cycles_used;
-            main_memory[allocated_address + 7] = process.register_value;
-            main_memory[allocated_address + 8] = process.max_memory_needed;
-            main_memory[allocated_address + 9] = process.main_memory_base;
-
-            // Store instructions: [[opcode, param1, param2], ...]
-            std::vector<std::vector<int>> instrs = process_instructions[process.process_id];
-            int write_index = process.instruction_base;
-
-            // First store opcodes
-            for (const auto& instr : instrs)
-            {
-                main_memory[write_index++] = instr[0];
-            }
-
-            // Then store parameters
-            for (const auto& instr : instrs)
-            {
-                for (int k = 1; k < static_cast<int>(instr.size()); k++)
-                {
-                    main_memory[write_index++] = instr[k];
-                }
-            }
-
-            std::cout << "Process " << process.process_id
-                      << " loaded into memory at address "
-                      << allocated_address << " with size "
-                      << total_memory_needed << "." << std::endl;
-
-            // Push to ready queue
-            ready_queue.push(process.main_memory_base);
-        }
-    }
-
-    // Return failed jobs back
-    while (!temp_queue.empty())
-    {
-        new_job_queue.push(temp_queue.front());
-        temp_queue.pop();
-    }
-}
 
 void execute_cpu(int start_address,int *main_memory,MemoryBlock *&memory_head,std::queue<PCB> &new_job_queue,std::queue<int> &ready_queue)
 {
