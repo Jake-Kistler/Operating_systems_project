@@ -357,23 +357,33 @@ void load_jobs_to_memory(std::queue<PCB>& new_job_queue,std::queue<int>& ready_q
 
         bool success = allocate_segments(memory_head, process.process_id,process.max_memory_needed,segments,segment_table_start);
 
-        if (!success)
-        {
-            std::cout << "Insufficient memory for Process "
-                      << process.process_id << ". Attempting memory coalescing." << std::endl;
-            coalesce_memory(memory_head);
+       if (!success)
+{
+    if (!coalesced_for_this_process)
+    {
+        std::cout << "Insufficient memory for Process "
+                  << process.process_id << ". Attempting memory coalescing." << std::endl;
 
-            success = allocate_segments(memory_head, process.process_id,process.max_memory_needed,segments,segment_table_start);
-            coalesced_for_this_process = success;
-        }
+        coalesce_memory(memory_head);
+        coalesced_for_this_process = true;
 
-        if (!success)
+        success = allocate_segments(memory_head, process.process_id,
+                                    process.max_memory_needed, segments, segment_table_start);
+    }
+
+    if (!success)
+    {
+        // Don’t print every time after coalescing once
+        if (!coalesced_for_this_process)
         {
             std::cout << "Process " << process.process_id
                       << " waiting in NewJobQueue due to insufficient memory." << std::endl;
-            temp_queue.push(process);
-            continue;
         }
+        temp_queue.push(process);
+        continue;
+    }
+}
+
 
         // Store segment table info in PCB
         process.segment_table_size = 2 * segments.size();
@@ -602,13 +612,12 @@ void coalesce_memory(MemoryBlock*& head)
 //    }
 //}
 
-bool allocate_segments(MemoryBlock*& memory_head, int process_id, int total_memory_needed,
-                       std::vector<segment>& out_segments, int& segment_table_start)
+bool allocate_segments(MemoryBlock*& memory_head, int process_id, int total_memory_needed, std::vector<segment>& out_segments, int& segment_table_start)
 {
     out_segments.clear();
     segment_table_start = -1;
 
-    // Step 1: Coalesce adjacent free blocks
+    // Step 1: Coalesce memory up front
     MemoryBlock* current = memory_head;
     while (current && current->next)
     {
@@ -624,23 +633,28 @@ bool allocate_segments(MemoryBlock*& memory_head, int process_id, int total_memo
         }
     }
 
-    // Step 2: Find space for the segment table (13 ints)
+    // Step 2: Allocate space for the PCB + segment table
+    int pcb_metadata_size = 12;
+    int max_segment_table_entries = MAX_SEGMENTS * 2;
+    int required_pcb_block_size = pcb_metadata_size + max_segment_table_entries;
+
     current = memory_head;
     MemoryBlock* prev = nullptr;
 
     while (current)
     {
-        if (current->process_id == -1 && current->size >= 13)
+        if (current->process_id == -1 && current->size >= required_pcb_block_size)
         {
             segment_table_start = current->start_address;
 
-            if (current->size == 13)
+            if (current->size == required_pcb_block_size)
             {
                 current->process_id = process_id;
             }
             else
             {
-                MemoryBlock* newBlock = new MemoryBlock(process_id, current->start_address, 13);
+                // Split block for PCB
+                MemoryBlock* newBlock = new MemoryBlock(process_id, current->start_address, required_pcb_block_size);
                 newBlock->next = current;
 
                 if (prev)
@@ -648,19 +662,22 @@ bool allocate_segments(MemoryBlock*& memory_head, int process_id, int total_memo
                 else
                     memory_head = newBlock;
 
-                current->start_address += 13;
-                current->size -= 13;
+                current->start_address += required_pcb_block_size;
+                current->size -= required_pcb_block_size;
             }
+
             break;
         }
+
         prev = current;
         current = current->next;
     }
 
+    // Failed to find space for PCB
     if (segment_table_start == -1)
         return false;
 
-    // Step 3: Allocate the segments
+    // Step 3: Allocate non-contiguous memory segments for instructions + data
     current = memory_head;
     prev = nullptr;
     int remaining = total_memory_needed;
@@ -679,6 +696,7 @@ bool allocate_segments(MemoryBlock*& memory_head, int process_id, int total_memo
             }
             else
             {
+                // Split block
                 MemoryBlock* newBlock = new MemoryBlock(process_id, current->start_address, useSize);
                 newBlock->next = current;
 
@@ -698,6 +716,7 @@ bool allocate_segments(MemoryBlock*& memory_head, int process_id, int total_memo
 
     return (remaining == 0);
 }
+
 
 
 
