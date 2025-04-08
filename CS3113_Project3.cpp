@@ -7,53 +7,53 @@
 #include "MemoryBlock.h"
 
 /*
-* Project 3 asks us to change hoow jobs are loaded into memory 
-* Previously, we loaded directlty into the ReadyQueue if memory was aviable 
+* Project 3 asks us to change hoow jobs are loaded into memory
+* Previously, we loaded directlty into the ReadyQueue if memory was aviable
 * Now, we've been asked to create a NewJobQueue and when there is enough memory we will load them into the readyQueue
 * In the case of not having enough memeory to use we have to options:
 *   1) Wait
 *   2) Coalesce memory (more on that below)
-* We then contiune like normal 
+* We then contiune like normal
 *
-* Lets say we have 1000 memory cells 
+* Lets say we have 1000 memory cells
 * Process 1 starts at 0 and has a size of 200 so now there are 800 free blocks to work with
-* process 2 starts at 350 and has a size of 300 
-* process 5 starts at 750 and has a size of 250 
-* 
+* process 2 starts at 350 and has a size of 300
+* process 5 starts at 750 and has a size of 250
+*
 * so 0-200 is used there is a gap from 200 - 350 (150 free slots)
-* process 2 starts at 350 and takes 300 cells up so 350-650 is occupied now 
+* process 2 starts at 350 and takes 300 cells up so 350-650 is occupied now
 * Then there is another free block from 650 to 750.
-* we then load process 3 from 750 - 1000 and are now out of memory 
-* 
+* we then load process 3 from 750 - 1000 and are now out of memory
+*
 * Say we have a new process 4 arrives and needs 180 memory cells to run,
-* We don't have this space in a single cohensive block of memory and will need to 
+* We don't have this space in a single cohensive block of memory and will need to
 * Combine the free blocks into one unit to load process 4 and it would need to wait for memory to free up
 *
 *
 * TO COALESCE:
-* Find our unassigned blocks of memory and combine them into one unit 
-* so tbe block after process 1 but before process 2 is free and so is 
-* the block after process 2 but before process 3 
-* 
-* 150 [gap after process 1] + 100 [gap after process 2] = 250 units of free space 
-* If we make this a cohesvie block we can load process 4 
+* Find our unassigned blocks of memory and combine them into one unit
+* so tbe block after process 1 but before process 2 is free and so is
+* the block after process 2 but before process 3
+*
+* 150 [gap after process 1] + 100 [gap after process 2] = 250 units of free space
+* If we make this a cohesvie block we can load process 4
 *
 * NEW STRUCTURES:
-* new_job_queue<PCB> // this will store the jobs and load them into the readyQueue only when there is enough memory to do so 
+* new_job_queue<PCB> // this will store the jobs and load them into the readyQueue only when there is enough memory to do so
 * Dynamic memory allocation handled / monitored by a linked list, each node has the following:
 *   i) int Process_id // the id of the process -1 if free
 *   ii) int start_address // where the block starts
-*   iii) int block_size // size of the block 
-*  
+*   iii) int block_size // size of the block
+*
 */
 
 /*
 * For Project 4 we've been asked to change the memory allocation which will now allow for non-contiguous memory allocation. Meaning a process
-* can be split into multiple blocks of memory. 
+* can be split into multiple blocks of memory.
 * To make these changes we need to allow for a segment table to be created for each process and this will be stored with the PCB
-* I think I can make this an unordered map and would like to do so since it will be easier to access the data (i won't have to implement the structure) 
-* I also won't have to bring in any new libraries to do this which is a good practice to get into. 
-* 
+* I think I can make this an unordered map and would like to do so since it will be easier to access the data (i won't have to implement the structure)
+* I also won't have to bring in any new libraries to do this which is a good practice to get into.
+*
 *   ASSUMPTIONS:
 *   1) Each process can only have at most 6 segments
 *   2) The segment table + it's length must fit in a single memory hole of atleast 13 integers
@@ -66,22 +66,22 @@
 *   3) If we can't find a block of memory that is large enough to load a process it stays in the NewJobQueue
 *   4) Memory coalescing is now performed when searching for a free block of memory not only when a process can't be loaded
 *   5) By doing this we get less internal fragmentation and more memory is grouped together when possible
-* 
+*
 *  NEW FUNCTIONS TO IMPLMENT:
-*  1) copyProcessToMemory(int *process_logical_address, int total_logical_memory_size, int * PCB, int *main_memory) // I'll have to change this to fit my data scheme 
+*  1) copyProcessToMemory(int *process_logical_address, int total_logical_memory_size, int * PCB, int *main_memory) // I'll have to change this to fit my data scheme
 *  2) translateLogicalAddressToPhysicalAddress(int logical_address, int *PCB)
 *
 * FLOW OF THE PROGRAM:
 * 1) Initialize the main memory as a single large free block
 * 2) For each job in the NewJobQueue:
 *   a) Attempt to allocate multiple non-contiguous blocks of memory who's total size fits the process memory requirement needs
-*   b) As the search is done for the block, coalesce any adjacent free blocks of memory that are found 
+*   b) As the search is done for the block, coalesce any adjacent free blocks of memory that are found
 *   c) If the memory is available:
 *       i) Allocate the memory of atleast 13 integers to hold the segemnt table
 *       ii) Allocate the segments of memory to the process
 *       iii) Fill the segment table and complete the PCB
-*       iv) Copy the segments of the PCB (segment table + metadata + instructions + data) into the allocated segemnts 
-*       v) Now, the PCB metadata could be stored across several blocks of memory 
+*       iv) Copy the segments of the PCB (segment table + metadata + instructions + data) into the allocated segemnts
+*       v) Now, the PCB metadata could be stored across several blocks of memory
 *       vi) Push to the ready queue
 *   d) If the memory is not available:
 *       i) Leave the job in the NewJobQueue
@@ -91,7 +91,7 @@
 *   b) Validate the address
 * 5) Upon job termination:
 *   a) Free the memory blocks allocated to the process
-*   b) update the memory linked list 
+*   b) update the memory linked list
 * 6) After a job terminates, check the NewJobQueue for any jobs that could be loaded now
 * 7) Do this until all jobs are done
 *
@@ -146,7 +146,7 @@ int context_switch_time, cpu_allocated;
 
 
 
-std::unordered_map<int, int> opcode_params = 
+std::unordered_map<int, int> opcode_params =
 {
     {1, 2}, // Compute: iterations, cycles
     {2, 1}, // Print: cycles
@@ -155,7 +155,7 @@ std::unordered_map<int, int> opcode_params =
 };
 
 // Key: state, Value: encoding
-std::unordered_map<std::string, int> state_encoding = 
+std::unordered_map<std::string, int> state_encoding =
 {
     {"NEW", 1},
     {"READY", 2},
@@ -357,33 +357,23 @@ void load_jobs_to_memory(std::queue<PCB>& new_job_queue,std::queue<int>& ready_q
 
         bool success = allocate_segments(memory_head, process.process_id,process.max_memory_needed,segments,segment_table_start);
 
-       if (!success)
-{
-    if (!coalesced_for_this_process)
-    {
-        std::cout << "Insufficient memory for Process "
-                  << process.process_id << ". Attempting memory coalescing." << std::endl;
+        if (!success)
+        {
+            std::cout << "Insufficient memory for Process "
+                      << process.process_id << ". Attempting memory coalescing." << std::endl;
+            coalesce_memory(memory_head);
 
-        coalesce_memory(memory_head);
-        coalesced_for_this_process = true;
+            success = allocate_segments(memory_head, process.process_id,process.max_memory_needed,segments,segment_table_start);
+            coalesced_for_this_process = success;
+        }
 
-        success = allocate_segments(memory_head, process.process_id,
-                                    process.max_memory_needed, segments, segment_table_start);
-    }
-
-    if (!success)
-    {
-        // Don’t print every time after coalescing once
-        if (!coalesced_for_this_process)
+        if (!success)
         {
             std::cout << "Process " << process.process_id
                       << " waiting in NewJobQueue due to insufficient memory." << std::endl;
+            temp_queue.push(process);
+            continue;
         }
-        temp_queue.push(process);
-        continue;
-    }
-}
-
 
         // Store segment table info in PCB
         process.segment_table_size = 2 * segments.size();
@@ -612,12 +602,13 @@ void coalesce_memory(MemoryBlock*& head)
 //    }
 //}
 
-bool allocate_segments(MemoryBlock*& memory_head, int process_id, int total_memory_needed, std::vector<segment>& out_segments, int& segment_table_start)
+bool allocate_segments(MemoryBlock*& memory_head, int process_id, int total_memory_needed,
+                       std::vector<segment>& out_segments, int& segment_table_start)
 {
     out_segments.clear();
     segment_table_start = -1;
 
-    // Step 1: Coalesce memory up front
+    // Step 1: Coalesce adjacent free blocks
     MemoryBlock* current = memory_head;
     while (current && current->next)
     {
@@ -633,28 +624,23 @@ bool allocate_segments(MemoryBlock*& memory_head, int process_id, int total_memo
         }
     }
 
-    // Step 2: Allocate space for the PCB + segment table
-    int pcb_metadata_size = 12;
-    int max_segment_table_entries = MAX_SEGMENTS * 2;
-    int required_pcb_block_size = pcb_metadata_size + max_segment_table_entries;
-
+    // Step 2: Find space for the segment table (13 ints)
     current = memory_head;
     MemoryBlock* prev = nullptr;
 
     while (current)
     {
-        if (current->process_id == -1 && current->size >= required_pcb_block_size)
+        if (current->process_id == -1 && current->size >= 13)
         {
             segment_table_start = current->start_address;
 
-            if (current->size == required_pcb_block_size)
+            if (current->size == 13)
             {
                 current->process_id = process_id;
             }
             else
             {
-                // Split block for PCB
-                MemoryBlock* newBlock = new MemoryBlock(process_id, current->start_address, required_pcb_block_size);
+                MemoryBlock* newBlock = new MemoryBlock(process_id, current->start_address, 13);
                 newBlock->next = current;
 
                 if (prev)
@@ -662,22 +648,19 @@ bool allocate_segments(MemoryBlock*& memory_head, int process_id, int total_memo
                 else
                     memory_head = newBlock;
 
-                current->start_address += required_pcb_block_size;
-                current->size -= required_pcb_block_size;
+                current->start_address += 13;
+                current->size -= 13;
             }
-
             break;
         }
-
         prev = current;
         current = current->next;
     }
 
-    // Failed to find space for PCB
     if (segment_table_start == -1)
         return false;
 
-    // Step 3: Allocate non-contiguous memory segments for instructions + data
+    // Step 3: Allocate the segments
     current = memory_head;
     prev = nullptr;
     int remaining = total_memory_needed;
@@ -696,7 +679,6 @@ bool allocate_segments(MemoryBlock*& memory_head, int process_id, int total_memo
             }
             else
             {
-                // Split block
                 MemoryBlock* newBlock = new MemoryBlock(process_id, current->start_address, useSize);
                 newBlock->next = current;
 
@@ -716,7 +698,6 @@ bool allocate_segments(MemoryBlock*& memory_head, int process_id, int total_memo
 
     return (remaining == 0);
 }
-
 
 
 
