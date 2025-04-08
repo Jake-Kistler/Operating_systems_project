@@ -341,10 +341,7 @@ int main(int argc, char **argv)
 //    return -1; // No block big enough
 //}
 
-void load_jobs_to_memory(std::queue<PCB>& new_job_queue,
-                         std::queue<int>& ready_queue,
-                         int* main_memory,
-                         MemoryBlock*& memory_head)
+void load_jobs_to_memory(std::queue<PCB>& new_job_queue,std::queue<int>& ready_queue,int* main_memory,MemoryBlock*& memory_head)
 {
     int new_job_queue_size = static_cast<int>(new_job_queue.size());
     std::queue<PCB> temp_queue;
@@ -358,10 +355,7 @@ void load_jobs_to_memory(std::queue<PCB>& new_job_queue,
         std::vector<segment> segments;
         int segment_table_start;
 
-        bool success = allocate_segments(memory_head, process.process_id,
-                                         process.max_memory_needed,
-                                         segments,
-                                         segment_table_start);
+        bool success = allocate_segments(memory_head, process.process_id,process.max_memory_needed,segments,segment_table_start);
 
         if (!success)
         {
@@ -441,23 +435,19 @@ void load_jobs_to_memory(std::queue<PCB>& new_job_queue,
         std::vector<std::vector<int>> instrs = process_instructions[process.process_id];
         int write_index = process.instruction_base;
 
-        for (const auto& instr : instrs)
-        {
-            main_memory[write_index++] = instr[0]; // opcode
-        }
+		for (const auto& instr : instrs)
+		{
+    		for (int k = 0; k < static_cast<int>(instr.size()); k++)
+    		{
+        		main_memory[write_index++] = instr[k]; // opcode + parameters interleaved
+    		}
+		}
 
-        for (const auto& instr : instrs)
-        {
-            for (int k = 1; k < static_cast<int>(instr.size()); k++)
-            {
-                main_memory[write_index++] = instr[k]; // parameters
-            }
-        }
 
         std::cout << "Process " << process.process_id
-                  << " loaded into memory at segment table address "
-                  << segment_table_start << " with "
-                  << process.number_of_segments << " segments." << std::endl;
+          << " loaded with segment table stored at physical address "
+          << segment_table_start << std::endl;
+
 
         // Push to ready queue
         ready_queue.push(process.main_memory_base);
