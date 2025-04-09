@@ -185,6 +185,10 @@ void check_io_waiting_queue(std::queue<int>& ready_queue, int* main_memory);
 int translate_logical_to_physical(int logical_address, const PCB &pcb);
 void copy_process_to_memory(int *logical_memory, int total_size, const PCB &pcb, int * main_memory);
 
+// These are used in debugging
+std::vector<int> segement_table_start;
+std::vector<int> segement_table_pids;
+
 int main(int argc, char **argv)
 {
     int max_memory, num_processes;
@@ -290,6 +294,10 @@ int main(int argc, char **argv)
 
     global_clock += context_switch_time;
     std::cout << "Total CPU time used: " << global_clock << "." << std::endl;
+
+    std::cout << "\nFinal segment table physical address:\n";
+    for(int i = 0; i < segement_table_start.size(); i++)
+      std::cout << i << " : " << segement_table_start[i] << std::endl;
 
     delete[] main_memory;
     return 0;
@@ -949,6 +957,13 @@ void load_jobs_to_memory(std::queue<PCB>& new_job_queue,std::queue<int>& ready_q
             continue;
         }
 
+        // mark the segment table start with process id for tracking
+        main_memory[segment_table_start] = process.process_id;
+
+        // track for later output
+        segement_table_start.push_back(segment_table_start);
+        segement_table_pids.push_back(process.process_id);
+
         // Store segment table info in PCB
         process.segment_table_size = 2 * segments.size();
         process.number_of_segments = segments.size();
@@ -978,10 +993,10 @@ void load_jobs_to_memory(std::queue<PCB>& new_job_queue,std::queue<int>& ready_q
         process.data_base = -1;
         for (int j = 0; j < process.number_of_segments; ++j)
         {
-            int addr = process.segment_table[2 * j];
-            if (addr != process.instruction_base)
+            int address = process.segment_table[2 * j];
+            if (address != process.instruction_base)
             {
-                process.data_base = addr;
+                process.data_base = address;
                 break;
             }
         }
