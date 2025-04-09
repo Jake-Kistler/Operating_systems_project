@@ -261,6 +261,9 @@ int main(int argc, char **argv)
             int start_address = ready_queue.front();
             ready_queue.pop();
 
+            if(main_memory[start_address] == -1)
+              continue;
+
             execute_cpu(start_address, main_memory, memory_head, new_job_queue, ready_queue);
 
             // If a timeout occurred, re-add the process
@@ -806,28 +809,33 @@ void check_io_waiting_queue(std::queue<int>& ready_queue, int* main_memory)
         if (global_clock - time_entered_io >= wait_time)
         {
             int param_offset = param_offsets[process.process_id];
-            int cycles = main_memory[process.data_base + param_offset];
+            int logical_cycles = process.data_base + param_offset;
+            int physical_cycles = translate_logical_to_physical(logical_cycles, process);
 
-            // Execute print operation
-            std::cout << "print" << std::endl;
-            process.cpu_cycles_used += cycles;
-            main_memory[start_address + 6] = process.cpu_cycles_used;
+            if(physical_cycles != -1)
+            {
+              int cycles = main_memory[physical_cycles];
+                // Execute print operation
+                std::cout << "print" << std::endl;
+                process.cpu_cycles_used += cycles;
+                main_memory[start_address + 6] = process.cpu_cycles_used;
 
-            // Increment program counter and paramOffset for next instruction
-            process.program_counter++;
-            main_memory[start_address + 2] = process.program_counter;
-            param_offset += opcode_params[2];
-            param_offsets[process.process_id] = param_offset;
+                // Increment program counter and paramOffset for next instruction
+                process.program_counter++;
+                main_memory[start_address + 2] = process.program_counter;
+                param_offset += opcode_params[2];
+                param_offsets[process.process_id] = param_offset;
 
-            // Reset state to READY and context switch
-            process.state = "READY";
-            main_memory[start_address + 1] = state_encoding[process.state];
+                // Reset state to READY and context switch
+                process.state = "READY";
+                main_memory[start_address + 1] = state_encoding[process.state];
 
-            std::cout << "Process " << process.process_id
-                      << " completed I/O and is moved to the ReadyQueue." << std::endl;
+                std::cout << "Process " << process.process_id
+                          << " completed I/O and is moved to the ReadyQueue." << std::endl;
 
-            ready_queue.push(start_address);
-        }
+                ready_queue.push(start_address);
+            } //  end if
+        }// end greater if
         else
         {
             io_waiting_queue.push(std::make_tuple(process, start_address, wait_time, time_entered_io));
