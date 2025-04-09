@@ -582,6 +582,34 @@ bool allocate_segments(MemoryBlock*& memory_head, int process_id, int total_memo
 }
 
 
+int translate_logical_to_physical(int logical_address, const PCB &pcb)
+{
+    int remaining = logical_address;
+
+    for(int i = 0; i < pcb.number_of_segments; i++)
+    {
+        int start = pcb.segment_table[2 * i]; // the start of physical address
+        int size = pcb.segment_table[2 * i + 1]; // size of the segment
+
+        if(remaining < size)
+        {
+            int physical_address = start + remaining;
+            std::cout << "Logical address " << logical_address
+                      << " translated to phsycial address " << physical_address
+                      << " for process " << pcb.process_id << std::endl;
+            return physical_address;
+        }
+        else
+        {
+            remaining -= size;
+        }
+    }
+
+    // adress is biger than the segment size, it falls out of bounds
+    std::cout << "Memory violation: address " << logical_address
+              << " out of bounds for process " << pcb.process_id << std::endl;
+    return -1;
+}
 
 void execute_cpu(int start_address,int *main_memory,MemoryBlock *&memory_head,std::queue<PCB> &new_job_queue,std::queue<int> &ready_queue)
 {
@@ -618,22 +646,39 @@ void execute_cpu(int start_address,int *main_memory,MemoryBlock *&memory_head,st
     int param_offset = param_offsets[process.process_id];
 
     // CPU execution loop
-    while (process.program_counter < process.data_base && cpu_cycles_this_run < cpu_allocated)
+    while (cpu_cycles_this_run < cpu_allocated)
     {
-        int opcode = main_memory[process.program_counter];
+        int logical_program_counter = process.program_counter;
+        int physical_program_counter = translate_logical_to_physical(logical_program_counter, process);
+
+        if(physical_program_counter == -1)
+          break;
+
+        int opcode = main_memory[physical_program_counter];
 
         switch (opcode)
         {
             case 1: // Compute
             {
-                int iterations = main_memory[process.data_base + param_offset];
-                int cycles     = main_memory[process.data_base + param_offset + 1];
-                std::cout << "compute" << std::endl;
+              int logical_iterations = process.data_base + param_offset;
+              int logical_cycles = process.data_base + param_offset + 1;
+
+              int physical_iterations = translate_logical_to_physical(logical_iterations, process);
+              int physical_cycles = translate_logical_to_physical(logical_cycles, process);
+
+              if(physical_iterations != -1 && physical_cycles != -1)
+              {
+                int iteration = main_memory[physical_iterations];
+                int cycles = main_memory[physical_cycles];
+
+                std::cout << "Compute" << std::endl;
                 process.cpu_cycles_used += cycles;
+
                 main_memory[start_address + 6] = process.cpu_cycles_used;
                 cpu_cycles_this_run += cycles;
-                global_clock        += cycles;
-                break;
+                global_clock += cycles;
+              }
+              break;
             }
             case 2: // Print
             {
@@ -798,34 +843,7 @@ void check_io_waiting_queue(std::queue<int>& ready_queue, int* main_memory)
     }
 }
 
-int translate_logical_to_physical(int logical_address, const PCB &pcb)
-{
-  int remaining = logical_address;
 
-  for(int i = 0; i < pcb.number_of_segments; i++)
-    {
-        int start = pcb.segment_table[2 * i]; // the start of physical address
-        int size = pcb.segment_table[2 * i + 1]; // size of the segment
-
-        if(remaining < size)
-          {
-              int physical_address = start + remaining;
-              std::cout << "Logical address " << logical_address
-                        << " translated to phsycial address " << physical_address
-                        << " for process " << pcb.process_id << std::endl;
-              return physical_address;
-          }
-        else
-          {
-              remaining -= size;
-          }
-    }
-
-    // adress is biger than the segment size, it falls out of bounds
-    std::cout << "Memory violation: address " << logical_address
-              << " out of bounds for process " << pcb.process_id << std::endl;
-    return -1;
-}
 
 int *build_logical_memory_array(const PCB &process, const std::vector<std::vector<int>> &instructions, int &out_bound_size)
 {
