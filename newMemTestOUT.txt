@@ -1,11 +1,212 @@
 Memory copied. Verifying this translation...
 Logical address 0 translated to phsycial address 100 for process 1
+Main memory[100] = 4 (from logical 0)
+
 Logical address 1 translated to phsycial address 101 for process 1
+Main memory[101] = 100 (from logical 1)
+
 Logical address 2 translated to phsycial address 102 for process 1
+Main memory[102] = 50 (from logical 2)
+
 Logical address 3 translated to phsycial address 103 for process 1
+Main memory[103] = 300 (from logical 3)
+
 Logical address 4 translated to phsycial address 104 for process 1
+Main memory[104] = 50 (from logical 4)
+
 Logical address 5 translated to phsycial address 105 for process 1
+Main memory[105] = 1 (from logical 5)
+
 Logical address 6 translated to phsycial address 106 for process 1
+Main memory[106] = 2 (from logical 6)
+
 Logical address 7 translated to phsycial address 107 for process 1
+Main memory[107] = 0 (from logical 7)
+
 Logical address 8 translated to phsycial address 108 for process 1
+Main memory[108] = 0 (from logical 8)
+
 Logical address 9 translated to phsycial address 109 for process 1
+Main memory[109] = 0 (from logical 9)
+
+Logical address 10 translated to phsycial address 110 for process 1
+Main memory[110] = 100 (from logical 10)
+
+Logical address 11 translated to phsycial address 111 for process 1
+Main memory[111] = 0 (from logical 11)
+
+Logical address 12 translated to phsycial address 112 for process 1
+Main memory[112] = 0 (from logical 12)
+
+Logical address 13 translated to phsycial address 113 for process 1
+Main memory[113] = 100 (from logical 13)
+
+Logical address 14 translated to phsycial address 114 for process 1
+Main memory[114] = 100 (from logical 14)
+
+Logical address 15 translated to phsycial address 115 for process 1
+Main memory[115] = 1 (from logical 15)
+
+Logical address 16 translated to phsycial address 116 for process 1
+Main memory[116] = 5 (from logical 16)
+
+Logical address 17 translated to phsycial address 117 for process 1
+Main memory[117] = 3 (from logical 17)
+
+Logical address 18 translated to phsycial address 118 for process 1
+Main memory[118] = 2 (from logical 18)
+
+Logical address 19 translated to phsycial address 119 for process 1
+Main memory[119] = 4 (from logical 19)
+
+Logical address 20 translated to phsycial address 120 for process 1
+Main memory[120] = -1 (from logical 20)
+
+Logical address 21 translated to phsycial address 121 for process 1
+Main memory[121] = -1 (from logical 21)
+
+Logical address 22 translated to phsycial address 122 for process 1
+Main memory[122] = -1 (from logical 22)
+
+Logical address 23 translated to phsycial address 123 for process 1
+Main memory[123] = -1 (from logical 23)
+
+Logical address 24 translated to phsycial address 124 for process 1
+Main memory[124] = -1 (from logical 24)
+
+Logical address 25 translated to phsycial address 125 for process 1
+Main memory[125] = -1 (from logical 25)
+
+Logical address 26 translated to phsycial address 126 for process 1
+Main memory[126] = -1 (from logical 26)
+
+Logical address 27 translated to phsycial address 127 for process 1
+Main memory[127] = -1 (from logical 27)
+
+Logical address 28 translated to phsycial address 128 for process 1
+Main memory[128] = -1 (from logical 28)
+
+Logical address 29 translated to phsycial address 129 for process 1
+Main memory[129] = -1 (from logical 29)
+
+Logical address 30 translated to phsycial address 130 for process 1
+Main memory[130] = -1 (from logical 30)
+
+Logical address 31 translated to phsycial address 131 for process 1
+Main memory[131] = -1 (from logical 31)
+
+Logical address 32 translated to phsycial address 132 for process 1
+Main memory[132] = -1 (from logical 32)
+
+Logical address 33 translated to phsycial address 133 for process 1
+Main memory[133] = -1 (from logical 33)
+
+Logical address 34 translated to phsycial address 134 for process 1
+Main memory[134] = -1 (from logical 34)
+
+Logical address 35 translated to phsycial address 135 for process 1
+Main memory[135] = -1 (from logical 35)
+
+Logical address 36 translated to phsycial address 136 for process 1
+Main memory[136] = -1 (from logical 36)
+
+Logical address 37 translated to phsycial address 137 for process 1
+Main memory[137] = -1 (from logical 37)
+
+Logical address 38 translated to phsycial address 138 for process 1
+Main memory[138] = -1 (from logical 38)
+
+Logical address 39 translated to phsycial address 139 for process 1
+Main memory[139] = -1 (from logical 39)
+
+Logical address 40 translated to phsycial address 140 for process 1
+Main memory[140] = -1 (from logical 40)
+
+Logical address 41 translated to phsycial address 141 for process 1
+Main memory[141] = -1 (from logical 41)
+
+Logical address 42 translated to phsycial address 142 for process 1
+Main memory[142] = -1 (from logical 42)
+
+Logical address 43 translated to phsycial address 143 for process 1
+Main memory[143] = -1 (from logical 43)
+
+Logical address 44 translated to phsycial address 144 for process 1
+Main memory[144] = -1 (from logical 44)
+
+Logical address 45 translated to phsycial address 145 for process 1
+Main memory[145] = -1 (from logical 45)
+
+Logical address 46 translated to phsycial address 146 for process 1
+Main memory[146] = -1 (from logical 46)
+
+Logical address 47 translated to phsycial address 147 for process 1
+Main memory[147] = -1 (from logical 47)
+
+Logical address 48 translated to phsycial address 148 for process 1
+Main memory[148] = -1 (from logical 48)
+
+Logical address 49 translated to phsycial address 149 for process 1
+Main memory[149] = -1 (from logical 49)
+
+------- Entering segment 1 ---- 
+Logical address 50 translated to phsycial address 300 for process 1
+Main memory[300] = -1 (from logical 50)
+
+Logical address 51 translated to phsycial address 301 for process 1
+Main memory[301] = -1 (from logical 51)
+
+Logical address 52 translated to phsycial address 302 for process 1
+Main memory[302] = -1 (from logical 52)
+
+Logical address 53 translated to phsycial address 303 for process 1
+Main memory[303] = -1 (from logical 53)
+
+Logical address 54 translated to phsycial address 304 for process 1
+Main memory[304] = -1 (from logical 54)
+
+Logical address 55 translated to phsycial address 305 for process 1
+Main memory[305] = -1 (from logical 55)
+
+Logical address 56 translated to phsycial address 306 for process 1
+Main memory[306] = -1 (from logical 56)
+
+Logical address 57 translated to phsycial address 307 for process 1
+Main memory[307] = -1 (from logical 57)
+
+Logical address 58 translated to phsycial address 308 for process 1
+Main memory[308] = -1 (from logical 58)
+
+Logical address 59 translated to phsycial address 309 for process 1
+Main memory[309] = -1 (from logical 59)
+
+Logical address 60 translated to phsycial address 310 for process 1
+Main memory[310] = -1 (from logical 60)
+
+Logical address 61 translated to phsycial address 311 for process 1
+Main memory[311] = -1 (from logical 61)
+
+Logical address 62 translated to phsycial address 312 for process 1
+Main memory[312] = -1 (from logical 62)
+
+Logical address 63 translated to phsycial address 313 for process 1
+Main memory[313] = -1 (from logical 63)
+
+Logical address 64 translated to phsycial address 314 for process 1
+Main memory[314] = -1 (from logical 64)
+
+Logical address 65 translated to phsycial address 315 for process 1
+Main memory[315] = -1 (from logical 65)
+
+Logical address 66 translated to phsycial address 316 for process 1
+Main memory[316] = -1 (from logical 66)
+
+Logical address 67 translated to phsycial address 317 for process 1
+Main memory[317] = -1 (from logical 67)
+
+Logical address 68 translated to phsycial address 318 for process 1
+Main memory[318] = -1 (from logical 68)
+
+Logical address 69 translated to phsycial address 319 for process 1
+Main memory[319] = -1 (from logical 69)
+

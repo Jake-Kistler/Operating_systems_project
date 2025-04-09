@@ -181,11 +181,15 @@ int main()
   std::cout << "Memory copied. Verifying this translation...\n";
 
   // attempt to translate a few logical address
-  for(int i = 0; i < 10; ++i)
+  for(int logical_address = 0; logical_address < 70; ++logical_address)
   {
-    int physical_address = translate_logical_to_physical(i, pcb);
-    if(physical_address == -1)
-      std::cout << "Main memory[" << physical_address << "] = " << main_memory[physical_address] << std::endl;
+    if(logical_address == 50)
+      std::cout << "------- Entering segment 1 ---- " << std::endl;
+
+
+    int physical_address = translate_logical_to_physical(logical_address, pcb);
+    if(physical_address != -1)
+      std::cout << "Main memory[" << physical_address << "] = " << main_memory[physical_address] << " (from logical " << logical_address << ")" << std::endl << std::endl;
   }
   delete[] logical_memory;
   return 0;
