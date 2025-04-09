@@ -182,7 +182,8 @@ void coalesce_memory(MemoryBlock*& memory_head);
 void load_jobs_to_memory(std::queue<PCB>& new_job_queue,std::queue<int>& ready_queue,int* main_memory,MemoryBlock*& memory_head);
 void execute_cpu(int start_address,int* main_memory,MemoryBlock*& memory_head,std::queue<PCB>& new_job_queue,std::queue<int>& ready_queue);
 void check_io_waiting_queue(std::queue<int>& ready_queue, int* main_memory);
-
+int translate_logical_to_physical(int logical_address, const PCB &pcb);
+void copy_process_to_memory(int *logical_memory, int total_size, const PCB &pcb, int * main_memory);
 
 int main(int argc, char **argv)
 {
@@ -947,5 +948,52 @@ int translate_logical_to_physical(int logical_address, const PCB &pcb)
 
 int *build_logical_memory_array(const PCB &process, const std::vector<std::vector<int>> &instructions, int &out_bound_size)
 {
-  int table_size = process.segment_table_size; // this is always 2 * num_segmnets
+    int table_size = process.segment_table_size; // this is always 2 * num_segmnets
+    int pcb_fields = 10; // the metadata excluding the segment table
+    int instruction_count = 0;
+
+    for(int i = 0; i < instructions.size(); i++)
+    {
+        instruction_count+= instructions[i].size(); // flatten the op codes and parameters since we have a nested vector this can be thought of linearizing a matrix to just a long column vector
+    }
+
+    out_bound_size = 1 + table_size + pcb_fields + instruction_count; // this is the total logical memory size
+    int *logical_memory = new int[out_bound_size]; // create the new array of the out bound size
+
+    int index = 0;
+    logical_memory[index++] = table_size;
+
+    // copy the segment table
+    for(int i = 0; i < table_size; ++i)
+    {
+      logical_memory[index++] = process.segment_table[i];
+    }
+
+    // write the metadata fields
+    logical_memory[index++] = process.process_id;
+    logical_memory[index++] = state_encoding.at(process.state); // this takes the string and encodes it to the int values I have in "state_encoding" about line 150 or so
+    logical_memory[index++] = process.program_counter;
+    logical_memory[index++] = process.instruction_base;
+    logical_memory[index++] = process.data_base;
+    logical_memory[index++] = process.memory_limit;
+    logical_memory[index++] = process.cpu_cycles_used;
+    logical_memory[index++] = process.register_value;
+    logical_memory[index++] = process.max_memory_needed;
+    logical_memory[index++] = process.main_memory_base;
+
+    // Flatten and copy the instructions over as well, a classic loop for a 2d array
+    for(int i = 0; i < instructions.size(); ++i)
+    {
+      for(int j = 0; j < instructions[i].size(); ++j)
+      {
+        logical_memory[index++] = instructions[i][j];
+      }
+    }
+
+    return logical_memory;
+}
+
+void copy_process_to_memory(int *logical_memory, int total_size, const PCB &pcb, int * main_memory)
+{
+
 }
