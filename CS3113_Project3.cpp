@@ -682,120 +682,112 @@ void execute_cpu(int start_address,int *main_memory,MemoryBlock *&memory_head,st
             }
             case 2: // Print
             {
-                int cycles = main_memory[process.data_base + param_offset];
-                std::cout << "Process " << process.process_id
-                          << " issued an IOInterrupt and moved to the IOWaitingQueue." << std::endl;
+                int logcial_cycles = process.data_base + param_offset;
+                int physical_cycles = translate_logical_to_physical(logcial_cycles, process);
 
-                io_waiting_queue.push({process, start_address, cycles, global_clock});
-                process.state = "IOWAITING";
-                main_memory[start_address + 1] = state_encoding[process.state];
-                return; // Let other processes run while we wait
+                if(physical_cycles != -1)
+                {
+                  int cycles = main_memory[physical_cycles];
+
+                  std::cout << "Process " << process.process_id << " issued an IOInterrupt and moved to the IOWaitingQueue." << std::endl;
+
+                  io_waiting_queue.push({process,start_address,cycles,global_clock});
+                  process.state = "IOWAITING";
+
+                  main_memory[start_address + 1] = state_encoding[process.state];
+                  return;
+                }
+                break;
             }
             case 3: // Store
             {
-                int value   = main_memory[process.data_base + param_offset];
-                int address = main_memory[process.data_base + param_offset + 1];
+                int logical_value = process.data_base + param_offset;
+                int logical_address = process.data_base + param_offset + 1;
 
-                process.register_value = value;
-                main_memory[start_address + 7] = process.register_value;
+                int physical_value = translate_logical_to_physical(logical_value, process);
+                int physical_address = translate_logical_to_physical(logical_address, process);
 
-                if (address < process.memory_limit)
+                if(physical_value != -1 && physical_address != -1)
                 {
-                    main_memory[process.main_memory_base + address] = process.register_value;
-                    std::cout << "stored" << std::endl;
-                }
-                else
-                {
-                    std::cout << "store error!" << std::endl;
+                  process.register_value = main_memory[physical_value];
+                  main_memory[start_address + 7] = process.register_value;
+
+                  main_memory[physical_address] = process.register_value;
+                  std::cout << "stored" << std::endl;
+
+                  process.cpu_cycles_used++;
+                  main_memory[start_address + 6] = process.cpu_cycles_used;
+
+                  cpu_cycles_this_run++;
+                  global_clock++;
                 }
 
-                process.cpu_cycles_used++;
-                main_memory[start_address + 6] = process.cpu_cycles_used;
-                cpu_cycles_this_run++;
-                global_clock++;
                 break;
             }
             case 4: // Load
             {
-                int address = main_memory[process.data_base + param_offset];
-                if (address < process.memory_limit)
-                {
-                    process.register_value = main_memory[process.main_memory_base + address];
-                    main_memory[start_address + 7] = process.register_value;
-                    std::cout << "loaded" << std::endl;
-                }
-                else
-                {
-                    std::cout << "load error!" << std::endl;
-                }
+                int logical_address = process.data_base + param_offset;
+                int physical_address = translate_logical_to_physical(logical_address, process);
 
-                process.cpu_cycles_used++;
-                main_memory[start_address + 6] = process.cpu_cycles_used;
-                cpu_cycles_this_run++;
-                global_clock++;
+                if(physical_address != -1)
+                {
+                  process.register_value = main_memory[physical_address];
+                  main_memory[start_address + 7] = process.register_value;
+
+                  std::cout << "loaded" << std::endl;
+
+                  process.cpu_cycles_used++;
+                  main_memory[start_address + 6] = process.cpu_cycles_used;
+
+                  cpu_cycles_this_run++;
+                  global_clock++;
+                }
                 break;
             }
             default:
+                std::cout << "Invalid opcode" << opcode << std::endl;
                 break;
         }
 
-        // Move to next instruction
-        process.program_counter++;
+        // process done update the final state
+        process.program_counter = process.instruction_base - 1;
+        process.state = "TERMINATED";
         main_memory[start_address + 2] = process.program_counter;
-        param_offset += opcode_params[opcode];
-        param_offsets[process.process_id] = param_offset;
+        main_memory[start_address + 1] = state_encoding[process.state];
 
-        // Check time-out
-        if (cpu_cycles_this_run >= cpu_allocated && process.program_counter < process.data_base)
-        {
-            std::cout << "Process " << process.process_id
-                      << " has a TimeOUT interrupt and is moved to the ReadyQueue." << std::endl;
-            process.state = "READY";
-            main_memory[start_address + 1] = state_encoding[process.state];
-            timeout_occurred = true;
-            return;
-        }
+        free_memory(memory_head, main_memory, process.process_id);
+        memory_freed = true;
+
+        int total_exe_time = global_clock - process_start_times[process.process_id];
+
+        // Output process info
+        std::cout << "Process ID: " << process.process_id << std::endl;
+        std::cout << "State: " << process.state << std::endl;
+        std::cout << "Program Counter: " << process.program_counter << std::endl;
+        std::cout << "Instruction Base: " << process.instruction_base << std::endl;
+        std::cout << "Data Base: " << process.data_base << std::endl;
+        std::cout << "Memory Limit: " << process.memory_limit << std::endl;
+        std::cout << "CPU Cycles Used: " << process.cpu_cycles_used << std::endl;
+        std::cout << "Register Value: " << process.register_value << std::endl;
+        std::cout << "Max Memory Needed: " << process.max_memory_needed << std::endl;
+        std::cout << "Main Memory Base: " << process.main_memory_base << std::endl;
+        std::cout << "Total CPU Cycles Consumed: " << total_exe_time << std::endl;
+
+        std::cout << "Process " << process.process_id
+                  << " terminated. Entered running state at: "
+                  << process_start_times[process.process_id]
+                  << ". Terminated at: "
+                  << global_clock
+                  << ". Total Execution Time: "
+                  << total_exe_time
+                  << "." << std::endl;
+
+        std::cout << "Process " << process.process_id
+                  << " terminated and freed memory blocks " << std::endl;
+
     }
 
-    // Finished instructions => set the program_counter for clarity
-    process.program_counter = process.instruction_base - 1;
-    process.state = "TERMINATED";
-    main_memory[start_address + 2] = process.program_counter;
-    main_memory[start_address + 1] = state_encoding[process.state];
 
-    int freed_start = process.main_memory_base;
-    int freed_size  = process.max_memory_needed + 10;
-    free_memory(memory_head, main_memory, process.process_id);
-    memory_freed = true;
-
-    int total_execution_time = global_clock - process_start_times[process.process_id];
-
-    // Output process info
-    std::cout << "Process ID: " << process.process_id << std::endl;
-    std::cout << "State: " << process.state << std::endl;
-    std::cout << "Program Counter: " << process.program_counter << std::endl;
-    std::cout << "Instruction Base: " << process.instruction_base << std::endl;
-    std::cout << "Data Base: " << process.data_base << std::endl;
-    std::cout << "Memory Limit: " << process.memory_limit << std::endl;
-    std::cout << "CPU Cycles Used: " << process.cpu_cycles_used << std::endl;
-    std::cout << "Register Value: " << process.register_value << std::endl;
-    std::cout << "Max Memory Needed: " << process.max_memory_needed << std::endl;
-    std::cout << "Main Memory Base: " << process.main_memory_base << std::endl;
-    std::cout << "Total CPU Cycles Consumed: " << total_execution_time << std::endl;
-
-    std::cout << "Process " << process.process_id
-              << " terminated. Entered running state at: "
-              << process_start_times[process.process_id]
-              << ". Terminated at: "
-              << global_clock
-              << ". Total Execution Time: "
-              << total_execution_time
-              << "." << std::endl;
-
-    std::cout << "Process " << process.process_id
-              << " terminated and released memory from "
-              << freed_start << " to "
-              << (freed_start + freed_size - 1) << "." << std::endl;
 }
 
 void check_io_waiting_queue(std::queue<int>& ready_queue, int* main_memory)
