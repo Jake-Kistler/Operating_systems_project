@@ -478,7 +478,6 @@ void free_memory(MemoryBlock *&memory_head, int *main_memory, int process_id)
             }
 
             current->process_id = -1;
-            return; // Done
         }
         current = current->next;
     }

@@ -8,4 +8,4 @@ Things I need to do:
         main_memory[physical] = ...;   // or read from it
     }
     ii) Load jobs to memory needs to be updated as well following the same idea as in point i
-    iii) The free memory function will have to change (and I think I can tackle this one first)
+    iii) The free memory function will have to change (and I think I can tackle this one first) [MIGHT BE DONE]
