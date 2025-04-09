@@ -1,0 +1,11 @@
+Memory copied. Verifying this translation...
+Logical address 0 translated to phsycial address 100 for process 1
+Logical address 1 translated to phsycial address 101 for process 1
+Logical address 2 translated to phsycial address 102 for process 1
+Logical address 3 translated to phsycial address 103 for process 1
+Logical address 4 translated to phsycial address 104 for process 1
+Logical address 5 translated to phsycial address 105 for process 1
+Logical address 6 translated to phsycial address 106 for process 1
+Logical address 7 translated to phsycial address 107 for process 1
+Logical address 8 translated to phsycial address 108 for process 1
+Logical address 9 translated to phsycial address 109 for process 1
