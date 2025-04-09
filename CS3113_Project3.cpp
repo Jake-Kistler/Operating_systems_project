@@ -995,5 +995,23 @@ int *build_logical_memory_array(const PCB &process, const std::vector<std::vecto
 
 void copy_process_to_memory(int *logical_memory, int total_size, const PCB &pcb, int * main_memory)
 {
+    int logical_index = 0;
 
+    // walk through each segment in the PCB
+    for(int i = 0; i < pcb.number_of_segments; i++)
+    {
+      int start = pcb.segment_table[2 * i]; // the physical starting point
+      int size = pcb.segment_table[2 * i + 1]; // size of the segment
+
+      // copy a chunk of logical memory into the current segment
+      for(int j = 0; j < size && logical_index < total_size; j++)
+      {
+        main_memory[start + j] = logical_memory[logical_index++];
+      }
+    }
+
+    if(logical_index < total_size)
+    {
+        std::cout << "Error: not enough space in allocated segments to hold process.\n";
+    }
 }
