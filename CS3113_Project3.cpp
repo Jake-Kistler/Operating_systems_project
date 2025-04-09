@@ -342,125 +342,7 @@ int main(int argc, char **argv)
 //    return -1; // No block big enough
 //}
 
-void load_jobs_to_memory(std::queue<PCB>& new_job_queue,std::queue<int>& ready_queue,int* main_memory,MemoryBlock*& memory_head)
-{
-    int new_job_queue_size = static_cast<int>(new_job_queue.size());
-    std::queue<PCB> temp_queue;
 
-    for (int i = 0; i < new_job_queue_size; i++)
-    {
-        PCB process = new_job_queue.front();
-        new_job_queue.pop();
-
-        bool coalesced_for_this_process = false;
-        std::vector<segment> segments;
-        int segment_table_start;
-
-        bool success = allocate_segments(memory_head, process.process_id,process.max_memory_needed,segments,segment_table_start);
-
-        if (!success)
-        {
-            std::cout << "Insufficient memory for Process "
-                      << process.process_id << ". Attempting memory coalescing." << std::endl;
-            coalesce_memory(memory_head);
-
-            success = allocate_segments(memory_head, process.process_id,process.max_memory_needed,segments,segment_table_start);
-            coalesced_for_this_process = success;
-        }
-
-        if (!success)
-        {
-            std::cout << "Process " << process.process_id
-                      << " waiting in NewJobQueue due to insufficient memory." << std::endl;
-            temp_queue.push(process);
-            continue;
-        }
-
-        // Store segment table info in PCB
-        process.segment_table_size = 2 * segments.size();
-        process.number_of_segments = segments.size();
-        for (int j = 0; j < process.number_of_segments; ++j)
-        {
-            process.segment_table[2 * j] = segments[j].start_address;
-            process.segment_table[2 * j + 1] = segments[j].size;
-        }
-
-        // Segment table goes in memory at segment_table_start
-        process.main_memory_base = segment_table_start;
-
-        // Determine where to write the instructions
-        process.instruction_base = -1;
-        for (int j = 0; j < process.number_of_segments; ++j)
-        {
-            int address = process.segment_table[2 * j];
-            int size = process.segment_table[2 * j + 1];
-            if (size >= static_cast<int>(process_instructions[process.process_id].size()))
-            {
-                process.instruction_base = address;
-                break;
-            }
-        }
-
-        // Just pick next available segment for data after instruction base
-        process.data_base = -1;
-        for (int j = 0; j < process.number_of_segments; ++j)
-        {
-            int addr = process.segment_table[2 * j];
-            if (addr != process.instruction_base)
-            {
-                process.data_base = addr;
-                break;
-            }
-        }
-
-        // Flatten the PCB into memory starting at segment_table_start
-        main_memory[segment_table_start + 0] = process.process_id;
-        main_memory[segment_table_start + 1] = state_encoding[process.state];
-        main_memory[segment_table_start + 2] = process.program_counter;
-        main_memory[segment_table_start + 3] = process.instruction_base;
-        main_memory[segment_table_start + 4] = process.data_base;
-        main_memory[segment_table_start + 5] = process.memory_limit;
-        main_memory[segment_table_start + 6] = process.cpu_cycles_used;
-        main_memory[segment_table_start + 7] = process.register_value;
-        main_memory[segment_table_start + 8] = process.max_memory_needed;
-        main_memory[segment_table_start + 9] = process.main_memory_base;
-        main_memory[segment_table_start + 10] = process.number_of_segments;
-        main_memory[segment_table_start + 11] = process.segment_table_size;
-
-        for (int k = 0; k < process.segment_table_size; ++k)
-        {
-            main_memory[segment_table_start + 12 + k] = process.segment_table[k];
-        }
-
-        // Store instructions
-        std::vector<std::vector<int>> instrs = process_instructions[process.process_id];
-        int write_index = process.instruction_base;
-
-		for (const auto& instr : instrs)
-		{
-    		for (int k = 0; k < static_cast<int>(instr.size()); k++)
-    		{
-        		main_memory[write_index++] = instr[k]; // opcode + parameters interleaved
-    		}
-		}
-
-
-        std::cout << "Process " << process.process_id
-          << " loaded with segment table stored at physical address "
-          << segment_table_start << std::endl;
-
-
-        // Push to ready queue
-        ready_queue.push(process.main_memory_base);
-    }
-
-    // Return failed jobs to the queue
-    while (!temp_queue.empty())
-    {
-        new_job_queue.push(temp_queue.front());
-        temp_queue.pop();
-    }
-}
 
 
 
@@ -1012,5 +894,132 @@ void copy_process_to_memory(int *logical_memory, int total_size, const PCB &pcb,
     if(logical_index < total_size)
     {
         std::cout << "Error: not enough space in allocated segments to hold process.\n";
+    }
+}
+
+void load_jobs_to_memory(std::queue<PCB>& new_job_queue,std::queue<int>& ready_queue,int* main_memory,MemoryBlock*& memory_head)
+{
+    int new_job_queue_size = static_cast<int>(new_job_queue.size());
+    std::queue<PCB> temp_queue;
+
+    for (int i = 0; i < new_job_queue_size; i++)
+    {
+        PCB process = new_job_queue.front();
+        new_job_queue.pop();
+
+        bool coalesced_for_this_process = false;
+        std::vector<segment> segments;
+        int segment_table_start;
+
+        bool success = allocate_segments(memory_head, process.process_id,process.max_memory_needed,segments,segment_table_start);
+
+        if (!success)
+        {
+            std::cout << "Insufficient memory for Process "
+                      << process.process_id << ". Attempting memory coalescing." << std::endl;
+            coalesce_memory(memory_head);
+
+            success = allocate_segments(memory_head, process.process_id,process.max_memory_needed,segments,segment_table_start);
+            coalesced_for_this_process = success;
+        }
+
+        if (!success)
+        {
+            std::cout << "Process " << process.process_id
+                      << " waiting in NewJobQueue due to insufficient memory." << std::endl;
+            temp_queue.push(process);
+            continue;
+        }
+
+        // Store segment table info in PCB
+        process.segment_table_size = 2 * segments.size();
+        process.number_of_segments = segments.size();
+        for (int j = 0; j < process.number_of_segments; ++j)
+        {
+            process.segment_table[2 * j] = segments[j].start_address;
+            process.segment_table[2 * j + 1] = segments[j].size;
+        }
+
+        // Segment table goes in memory at segment_table_start
+        process.main_memory_base = segment_table_start;
+
+        // Determine where to write the instructions
+        process.instruction_base = -1;
+        for (int j = 0; j < process.number_of_segments; ++j)
+        {
+            int address = process.segment_table[2 * j];
+            int size = process.segment_table[2 * j + 1];
+            if (size >= static_cast<int>(process_instructions[process.process_id].size()))
+            {
+                process.instruction_base = address;
+                break;
+            }
+        }
+
+        // Just pick next available segment for data after instruction base
+        process.data_base = -1;
+        for (int j = 0; j < process.number_of_segments; ++j)
+        {
+            int addr = process.segment_table[2 * j];
+            if (addr != process.instruction_base)
+            {
+                process.data_base = addr;
+                break;
+            }
+        }
+
+//        // Flatten the PCB into memory starting at segment_table_start
+//        main_memory[segment_table_start + 0] = process.process_id;
+//        main_memory[segment_table_start + 1] = state_encoding[process.state];
+//        main_memory[segment_table_start + 2] = process.program_counter;
+//        main_memory[segment_table_start + 3] = process.instruction_base;
+//        main_memory[segment_table_start + 4] = process.data_base;
+//        main_memory[segment_table_start + 5] = process.memory_limit;
+//        main_memory[segment_table_start + 6] = process.cpu_cycles_used;
+//        main_memory[segment_table_start + 7] = process.register_value;
+//        main_memory[segment_table_start + 8] = process.max_memory_needed;
+//        main_memory[segment_table_start + 9] = process.main_memory_base;
+//        main_memory[segment_table_start + 10] = process.number_of_segments;
+//        main_memory[segment_table_start + 11] = process.segment_table_size;
+
+        int logical_size;
+        int *logical_memory = build_logical_memory_array(process, process_instructions[process.process_id], logical_size);
+        copy_process_to_memory(logical_memory, logical_size, process, main_memory);
+        delete [] logical_memory;
+
+
+        // BOTH OF THE LOOP SECTIONS CAN BE REMOVED SINCE THIS IS HANDLED IN COPY_PROCESS_TO_MEMORY
+//        for (int k = 0; k < process.segment_table_size; ++k)
+//        {
+//            main_memory[segment_table_start + 12 + k] = process.segment_table[k];
+//        }
+
+//        // Store instructions
+//        std::vector<std::vector<int>> instrs = process_instructions[process.process_id];
+//        int write_index = process.instruction_base;
+//
+//		for (const auto& instr : instrs)
+//		{
+//    		for (int k = 0; k < static_cast<int>(instr.size()); k++)
+//    		{
+//        		main_memory[write_index++] = instr[k]; // opcode + parameters interleaved
+//    		}
+//		}
+
+
+        std::cout << "Process " << process.process_id
+          << " loaded with segment table stored at physical address "
+          << segment_table_start << std::endl;
+
+
+        // Push to ready queue
+        ready_queue.push(process.main_memory_base);
+    }
+
+    // Return failed jobs to the queue
+    while (!temp_queue.empty())
+    {
+        new_job_queue.push(temp_queue.front());
+        temp_queue.pop();
     }
 }
