@@ -1,0 +1,11 @@
+I think this is starting to be on the road to being wrapped up on the implementation side. The painful output matching process is yet to come...
+
+Things I need to do:
+    i)Update ALL writes to main memory (like this for example main_memory[process.main_memory_base + address]) with a yet to be written block that is something like this:
+    int physical = translateLogicalToPhysical(address, process);
+    if (physical != -1)
+    {
+        main_memory[physical] = ...;   // or read from it
+    }
+    ii) Load jobs to memory needs to be updated as well following the same idea as in point i
+    iii) The free memory function will have to change (and I think I can tackle this one first)
