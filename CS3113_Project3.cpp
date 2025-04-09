@@ -915,3 +915,37 @@ void check_io_waiting_queue(std::queue<int>& ready_queue, int* main_memory)
         }
     }
 }
+
+int translate_logical_to_physical(int logical_address, const PCB &pcb)
+{
+  int remaining = logical_address;
+
+  for(int i = 0; i < pcb.number_of_segments; i++)
+    {
+        int start = pcb.segment_table[2 * i]; // the start of physical address
+        int size = pcb.segment_table[2 * i + 1]; // size of the segment
+
+        if(remaining < size)
+          {
+              int physical_address = start + remaining;
+              std::cout << "Logical address " << logical_address
+                        << " translated to phsycial address " << physical_address
+                        << " for process " << pcb.process_id << std::endl;
+              return physical_address;
+          }
+        else
+          {
+              remaining -= size;
+          }
+    }
+
+    // adress is biger than the segment size, it falls out of bounds
+    std::cout << "Memory violation: address " << logical_address
+              << " out of bounds for process " << pcb.process_id << std::endl;
+    return -1;
+}
+
+int *build_logical_memory_array(const PCB &process, const std::vector<std::vector<int>> &instructions, int &out_bound_size)
+{
+  int table_size = process.segment_table_size; // this is always 2 * num_segmnets
+}
