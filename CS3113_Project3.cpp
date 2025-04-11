@@ -933,7 +933,7 @@ void load_jobs_to_memory(std::queue<PCB>& new_job_queue,std::queue<int>& ready_q
 
         coalesce_memory(memory_head); // we are supposed to coalesce before trying to allocate
 
-        const int OVER_HEAD = 23; // the segment table (13) + PCB meta data (10)
+        const int OVER_HEAD = 10; // PCB meta data (10), removed the 13 that is allocated in "allocate_segments"
         int total_needed_memory = process.max_memory_needed + OVER_HEAD;
 
         std::vector<segment> segments;
