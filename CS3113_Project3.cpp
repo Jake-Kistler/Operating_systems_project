@@ -496,30 +496,16 @@ void coalesce_memory(MemoryBlock*& head)
 //    }
 //}
 
-bool allocate_segments(MemoryBlock*& memory_head, int process_id, int total_memory_needed,
-                       std::vector<segment>& out_segments, int& segment_table_start)
+bool allocate_segments(MemoryBlock*& memory_head, int process_id, int total_memory_needed, std::vector<segment>& out_segments, int& segment_table_start)
 {
     out_segments.clear();
     segment_table_start = -1;
 
     // Step 1: Coalesce adjacent free blocks
-    MemoryBlock* current = memory_head;
-    while (current && current->next)
-    {
-        if (current->process_id == -1 && current->next->process_id == -1 &&
-            current->start_address + current->size == current->next->start_address)
-        {
-            current->size += current->next->size;
-            current->next = current->next->next;
-        }
-        else
-        {
-            current = current->next;
-        }
-    }
+    coalesce_memory(memory_head);
 
     // Step 2: Find space for the segment table (13 ints)
-    current = memory_head;
+    MemoryBlock *current = memory_head;
     MemoryBlock* prev = nullptr;
 
     while (current)
@@ -947,10 +933,13 @@ void load_jobs_to_memory(std::queue<PCB>& new_job_queue,std::queue<int>& ready_q
 
         coalesce_memory(memory_head); // we are supposed to coalesce before trying to allocate
 
+        const int OVER_HEAD = 23; // the segment table (13) + PCB meta data (10)
+        int total_needed_memory = process.max_memory_needed + OVER_HEAD;
+
         std::vector<segment> segments;
         int segment_table_start;
 
-        bool success = allocate_segments(memory_head, process.process_id,process.max_memory_needed,segments,segment_table_start);
+        bool success = allocate_segments(memory_head, process.process_id,total_needed_memory,segments,segment_table_start);
 
 
 
@@ -1022,7 +1011,7 @@ void load_jobs_to_memory(std::queue<PCB>& new_job_queue,std::queue<int>& ready_q
         delete [] logical_memory;
 
         std::cout << "process " << process.process_id << " loaded with segment table stored at physical address "
-                  << process.segment_table_size << std::endl;
+                  << segment_table_start << std::endl;
 
         ready_queue.push(process.main_memory_base);
 
