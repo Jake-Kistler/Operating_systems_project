@@ -182,7 +182,7 @@ void coalesce_memory(MemoryBlock*& memory_head);
 void load_jobs_to_memory(std::queue<PCB>& new_job_queue,std::queue<int>& ready_queue,int* main_memory,MemoryBlock*& memory_head);
 void execute_cpu(int start_address,int* main_memory,MemoryBlock*& memory_head,std::queue<PCB>& new_job_queue,std::queue<int>& ready_queue);
 void check_io_waiting_queue(std::queue<int>& ready_queue, int* main_memory);
-int translate_logical_to_physical(int logical_address, const PCB &pcb);
+int translate_logical_to_physical(int logical_address, const PCB &pcb, bool load_store_flag = false);
 void copy_process_to_memory(int *logical_memory, int total_size, const PCB &pcb, int * main_memory);
 
 // These are used in debugging
@@ -593,7 +593,7 @@ bool allocate_segments(MemoryBlock*& memory_head, int process_id, int total_memo
 }
 
 
-int translate_logical_to_physical(int logical_address, const PCB &pcb)
+int translate_logical_to_physical(int logical_address, const PCB &pcb, bool load_store_flag)
 {
     int remaining = logical_address;
 
@@ -605,9 +605,16 @@ int translate_logical_to_physical(int logical_address, const PCB &pcb)
         if(remaining < size)
         {
             int physical_address = start + remaining;
-            std::cout << "Logical address " << logical_address
-                      << " translated to phsycial address " << physical_address
-                      << " for process " << pcb.process_id << std::endl;
+
+            // Need a flag to print this only for load and store
+            if(load_store_flag)
+            {
+                std::cout << "Logical address " << logical_address
+                        << " translated to phsycial address " << physical_address
+                        << " for process " << pcb.process_id << std::endl;
+            }
+
+
             return physical_address;
         }
         else
