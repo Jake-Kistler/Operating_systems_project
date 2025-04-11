@@ -723,8 +723,8 @@ void execute_cpu(int start_address,int *main_memory,MemoryBlock *&memory_head,st
                 int logical_value = process.data_base + param_offset;
                 int logical_address = process.data_base + param_offset + 1;
 
-                int physical_value = translate_logical_to_physical(logical_value, process);
-                int physical_address = translate_logical_to_physical(logical_address, process);
+                int physical_value = translate_logical_to_physical(logical_value, process, true);
+                int physical_address = translate_logical_to_physical(logical_address, process, true);
 
                 if(physical_value != -1 && physical_address != -1)
                 {
@@ -746,7 +746,7 @@ void execute_cpu(int start_address,int *main_memory,MemoryBlock *&memory_head,st
             case 4: // Load
             {
                 int logical_address = process.data_base + param_offset;
-                int physical_address = translate_logical_to_physical(logical_address, process);
+                int physical_address = translate_logical_to_physical(logical_address, process, true);
 
                 if(physical_address != -1)
                 {
@@ -782,9 +782,13 @@ void execute_cpu(int start_address,int *main_memory,MemoryBlock *&memory_head,st
         // Output process info
         std::cout << "Process ID: " << process.process_id << std::endl;
         std::cout << "State: " << process.state << std::endl;
-        std::cout << "Program Counter: " << process.program_counter << std::endl;
-        std::cout << "Instruction Base: " << process.instruction_base << std::endl;
-        std::cout << "Data Base: " << process.data_base << std::endl;
+
+        std::cout << "Program Counter: " << physcial_to_logical(process.program_counter, process) << std::endl;
+
+        std::cout << "Instruction Base: " << physcial_to_logical(process.program_counter, process) << std::endl;
+
+        std::cout << "Data Base: " << physcial_to_logical(process.data_base, process) << std::endl;
+
         std::cout << "Memory Limit: " << process.memory_limit << std::endl;
         std::cout << "CPU Cycles Used: " << process.cpu_cycles_used << std::endl;
         std::cout << "Register Value: " << process.register_value << std::endl;
