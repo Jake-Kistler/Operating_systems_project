@@ -184,6 +184,7 @@ void execute_cpu(int start_address,int* main_memory,MemoryBlock*& memory_head,st
 void check_io_waiting_queue(std::queue<int>& ready_queue, int* main_memory);
 int translate_logical_to_physical(int logical_address, const PCB &pcb, bool load_store_flag = false);
 void copy_process_to_memory(int *logical_memory, int total_size, const PCB &pcb, int * main_memory);
+int physcial_to_logical(int physical_address, const PCB &pcb);
 
 // These are used in debugging
 std::vector<int> segement_table_start;
@@ -1030,4 +1031,25 @@ void load_jobs_to_memory(std::queue<PCB>& new_job_queue,std::queue<int>& ready_q
       temp_queue.pop();
     }
 
+}
+
+// adding a new helper mostly for displaying things right
+int physcial_to_logical(int physical_address, const PCB &pcb)
+{
+  int logical_address = 0;
+
+  for(int i = 0; i < pcb.number_of_segments; i++)
+  {
+    int start = pcb.segment_table[2 * i];
+    int size = pcb.segment_table[2 * i + 1];
+
+    if(physical_address >= start && physical_address < start + size)
+    {
+      return logical_address + (physical_address - start);
+    }
+
+    logical_address += size;
+  } // END FOR LOOP
+
+  return -1;
 }
