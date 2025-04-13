@@ -2,12 +2,8 @@ process 1 loaded with segment table stored at physical address 0
 process 2 loaded with segment table stored at physical address 422
 process 3 loaded with segment table stored at physical address 942
 process 4 loaded with segment table stored at physical address 1296
-Process 5 waiting in NewJobQueue due to insufficient memory.
-Process 6 waiting in NewJobQueue due to insufficient memory.
-Process 7 waiting in NewJobQueue due to insufficient memory.
-Process 8 waiting in NewJobQueue due to insufficient memory.
-Process 9 waiting in NewJobQueue due to insufficient memory.
-Process 10 waiting in NewJobQueue due to insufficient memory.
+Insufficient memory for Process 5. Attempting memory coalescing.
+Process  5 waiting in NewJobQueue due to insufficient memory.
 0 : -1
 1 : -1
 2 : -1

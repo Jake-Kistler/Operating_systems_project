@@ -926,12 +926,20 @@ void load_jobs_to_memory(std::queue<PCB>& new_job_queue,std::queue<int>& ready_q
     int new_job_queue_size = static_cast<int>(new_job_queue.size());
     std::queue<PCB> temp_queue;
 
+    bool memory_full = false;
+
     for (int i = 0; i < new_job_queue_size; i++)
     {
         PCB process = new_job_queue.front();
         new_job_queue.pop();
 
-        coalesce_memory(memory_head); // we are supposed to coalesce before trying to allocate
+        if(memory_full)
+        {
+          temp_queue.push(process);
+          continue;
+        }
+
+        //coalesce_memory(memory_head); // we are supposed to coalesce before trying to allocate
 
         const int OVER_HEAD = 10; // PCB meta data (10), removed the 13 that is allocated in "allocate_segments"
         int total_needed_memory = process.max_memory_needed + OVER_HEAD;
@@ -941,14 +949,23 @@ void load_jobs_to_memory(std::queue<PCB>& new_job_queue,std::queue<int>& ready_q
 
         bool success = allocate_segments(memory_head, process.process_id,total_needed_memory,segments,segment_table_start);
 
-
-
         if (!success)
         {
-            std::cout << "Process " << process.process_id
-                      << " waiting in NewJobQueue due to insufficient memory." << std::endl;
-            temp_queue.push(process);
-            continue;
+            std::cout << "Insufficient memory for Process " << process.process_id
+              << ". Attempting memory coalescing." << std::endl;
+
+            coalesce_memory(memory_head);
+
+            success = allocate_segments(memory_head, process.process_id, total_needed_memory, segments, segment_table_start);
+
+            if(!success)
+            {
+              std::cout << "Process  " << process.process_id << " waiting in NewJobQueue due to insufficient memory." << std::endl;
+              temp_queue.push(process);
+              memory_full = true;
+              continue;
+
+            }
         }
 
         // track for later output
