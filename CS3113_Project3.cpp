@@ -960,7 +960,7 @@ void load_jobs_to_memory(std::queue<PCB>& new_job_queue,std::queue<int>& ready_q
 
             if(!success)
             {
-              std::cout << "Process  " << process.process_id << " waiting in NewJobQueue due to insufficient memory." << std::endl;
+              std::cout << "Process " << process.process_id << " waiting in NewJobQueue due to insufficient memory." << std::endl;
               temp_queue.push(process);
               memory_full = true;
               continue;
@@ -1027,7 +1027,7 @@ void load_jobs_to_memory(std::queue<PCB>& new_job_queue,std::queue<int>& ready_q
         copy_process_to_memory(logical_memory, logical_size, process, main_memory);
         delete [] logical_memory;
 
-        std::cout << "process " << process.process_id << " loaded with segment table stored at physical address "
+        std::cout << "Process " << process.process_id << " loaded with segment table stored at physical address "
                   << segment_table_start << std::endl;
 
         ready_queue.push(process.main_memory_base);
