@@ -683,7 +683,7 @@ void execute_cpu(int start_address,int *main_memory,MemoryBlock *&memory_head,st
                 std::cout << "compute" << std::endl;
                 process.cpu_cycles_used += cycles;
 
-                main_memory[start_address + 6] = process.cpu_cycles_used;
+                main_memory[pcb_offset + 6] = process.cpu_cycles_used;
                 cpu_cycles_this_run += cycles;
                 global_clock += cycles;
               }
@@ -703,7 +703,7 @@ void execute_cpu(int start_address,int *main_memory,MemoryBlock *&memory_head,st
                   io_waiting_queue.push({process,start_address,cycles,global_clock});
                   process.state = "IOWAITING";
 
-                  main_memory[start_address + 1] = state_encoding[process.state];
+                  main_memory[pcb_offset  + 1] = state_encoding[process.state];
                   return;
                 }
                 break;
@@ -719,13 +719,13 @@ void execute_cpu(int start_address,int *main_memory,MemoryBlock *&memory_head,st
                 if(physical_value != -1 && physical_address != -1)
                 {
                   process.register_value = main_memory[physical_value];
-                  main_memory[start_address + 7] = process.register_value;
+                  main_memory[pcb_offset + 7] = process.register_value;
 
                   main_memory[physical_address] = process.register_value;
                   std::cout << "stored" << std::endl;
 
                   process.cpu_cycles_used++;
-                  main_memory[start_address + 6] = process.cpu_cycles_used;
+                  main_memory[pcb_offset + 6] = process.cpu_cycles_used;
 
                   cpu_cycles_this_run++;
                   global_clock++;
@@ -741,12 +741,12 @@ void execute_cpu(int start_address,int *main_memory,MemoryBlock *&memory_head,st
                 if(physical_address != -1)
                 {
                   process.register_value = main_memory[physical_address];
-                  main_memory[start_address + 7] = process.register_value;
+                  main_memory[pcb_offset + 7] = process.register_value;
 
                   std::cout << "loaded" << std::endl;
 
                   process.cpu_cycles_used++;
-                  main_memory[start_address + 6] = process.cpu_cycles_used;
+                  main_memory[pcb_offset + 6] = process.cpu_cycles_used;
 
                   cpu_cycles_this_run++;
                   global_clock++;
@@ -765,7 +765,7 @@ void execute_cpu(int start_address,int *main_memory,MemoryBlock *&memory_head,st
         //process.program_counter = process.instruction_base - 1;
         process.state = "TERMINATED";
        // main_memory[start_address + 2] = process.program_counter;
-        main_memory[start_address + 1] = state_encoding[process.state];
+        main_memory[pcb_offset + 1] = state_encoding[process.state];
 
         //free_memory(memory_head, main_memory, process.process_id);
         //memory_freed = true;
