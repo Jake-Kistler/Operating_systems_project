@@ -766,7 +766,7 @@ bool execute_cpu(int start_address,int *main_memory,MemoryBlock *&memory_head,st
         param_offset += opcode_params[opcode];
         param_offsets[process.process_id] = param_offset;
 
-        if(cpu_cycles_this_run < cpu_allocated)
+        if(cpu_cycles_this_run >= cpu_allocated)
           return true;
 
 
