@@ -253,7 +253,7 @@ int main(int argc, char **argv)
     load_jobs_to_memory(new_job_queue, ready_queue, main_memory, memory_head);
 
     // dump main_memory contents
-    for (int i = 0; i < max_memory; i++)
+    for (int i = 0; i < 100; i++)
     {
         std::cout << i << " : " << main_memory[i] << std::endl;
     }
