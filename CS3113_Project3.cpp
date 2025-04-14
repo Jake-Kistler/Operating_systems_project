@@ -253,7 +253,7 @@ int main(int argc, char **argv)
     load_jobs_to_memory(new_job_queue, ready_queue, main_memory, memory_head);
 
     // dump main_memory contents
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; i < max_memory; i++)
     {
         std::cout << i << " : " << main_memory[i] << std::endl;
     }
@@ -266,7 +266,7 @@ int main(int argc, char **argv)
             int start_address = ready_queue.front();
             ready_queue.pop();
 
-            if(main_memory[start_address] == -1)
+            if(main_memory[start_address] < -1)
               continue;
 
             execute_cpu(start_address, main_memory, memory_head, new_job_queue, ready_queue);
@@ -293,12 +293,10 @@ int main(int argc, char **argv)
         check_io_waiting_queue(ready_queue, main_memory);
     }
 
+
+
     global_clock += context_switch_time;
     std::cout << "Total CPU time used: " << global_clock << "." << std::endl;
-
-    std::cout << "\nFinal segment table physical address:\n";
-    for(int i = 0; i < segement_table_start.size(); i++)
-      std::cout << i << " : " << segement_table_start[i] << std::endl;
 
     delete[] main_memory;
     return 0;
@@ -597,8 +595,8 @@ int translate_logical_to_physical(int logical_address, const PCB &pcb, bool load
             if(load_store_flag)
             {
                 std::cout << "Logical address " << logical_address
-                        << " translated to phsycial address " << physical_address
-                        << " for process " << pcb.process_id << std::endl;
+                        << " translated to physical address " << physical_address
+                        << " for Process  " << pcb.process_id << std::endl;
             }
 
 
@@ -612,29 +610,35 @@ int translate_logical_to_physical(int logical_address, const PCB &pcb, bool load
 
     // adress is biger than the segment size, it falls out of bounds
     std::cout << "Memory violation: address " << logical_address
-              << " out of bounds for process " << pcb.process_id << std::endl;
+              << " out of bounds for Process  " << pcb.process_id << std::endl;
     return -1;
 }
 
 void execute_cpu(int start_address,int *main_memory,MemoryBlock *&memory_head,std::queue<PCB> &new_job_queue,std::queue<int> &ready_queue)
 {
+
     PCB process;
     int cpu_cycles_this_run = 0;
 
-    process.process_id      = main_memory[start_address + 0];
+    int segment_table_size = main_memory[start_address]; // first value  = the segment table size
+    int pcb_offset = start_address + segment_table_size + 1; // start of the PCB metadata
+
+    process.process_id      = main_memory[pcb_offset + 0];
     process.state           = "READY";
-    main_memory[start_address + 1] = state_encoding[process.state];
-    process.program_counter = main_memory[start_address + 2];
-    process.instruction_base= main_memory[start_address + 3];
-    process.data_base       = main_memory[start_address + 4];
-    process.memory_limit    = main_memory[start_address + 5];
-    process.cpu_cycles_used = main_memory[start_address + 6];
-    process.register_value  = main_memory[start_address + 7];
-    process.max_memory_needed=main_memory[start_address + 8];
-    process.main_memory_base= main_memory[start_address + 9];
+    main_memory[pcb_offset + 1] = state_encoding[process.state];
+    process.program_counter = main_memory[pcb_offset + 2];
+    process.instruction_base= main_memory[pcb_offset + 3];
+    process.data_base       = main_memory[pcb_offset + 4];
+    process.memory_limit    = main_memory[pcb_offset + 5];
+    process.cpu_cycles_used = main_memory[pcb_offset + 6];
+    process.register_value  = main_memory[pcb_offset + 7];
+    process.max_memory_needed=main_memory[pcb_offset + 8];
+    process.main_memory_base= main_memory[pcb_offset + 9];
 
     // Increment global clock by context switch time
     global_clock += context_switch_time;
+    //std::cout << "Process " << process.process_id << " has moved to Running." << std::endl;
+
 
     if (process.program_counter == 0)
     {
@@ -644,8 +648,8 @@ void execute_cpu(int start_address,int *main_memory,MemoryBlock *&memory_head,st
     }
 
     process.state = "RUNNING";
-    main_memory[start_address + 1] = state_encoding[process.state];
-    main_memory[start_address + 2] = process.program_counter;
+    main_memory[pcb_offset  + 1] = state_encoding[process.state];
+    main_memory[pcb_offset  + 2] = process.program_counter;
     std::cout << "Process " << process.process_id << " has moved to Running." << std::endl;
 
     int param_offset = param_offsets[process.process_id];
@@ -676,7 +680,7 @@ void execute_cpu(int start_address,int *main_memory,MemoryBlock *&memory_head,st
                 int iteration = main_memory[physical_iterations];
                 int cycles = main_memory[physical_cycles];
 
-                std::cout << "Compute" << std::endl;
+                std::cout << "compute" << std::endl;
                 process.cpu_cycles_used += cycles;
 
                 main_memory[start_address + 6] = process.cpu_cycles_used;
@@ -754,16 +758,21 @@ void execute_cpu(int start_address,int *main_memory,MemoryBlock *&memory_head,st
                 break;
         }
 
+        if(cpu_cycles_this_run < cpu_allocated)
+          return;
+
         // process done update the final state
-        process.program_counter = process.instruction_base - 1;
+        //process.program_counter = process.instruction_base - 1;
         process.state = "TERMINATED";
-        main_memory[start_address + 2] = process.program_counter;
+       // main_memory[start_address + 2] = process.program_counter;
         main_memory[start_address + 1] = state_encoding[process.state];
 
-        free_memory(memory_head, main_memory, process.process_id);
-        memory_freed = true;
+        //free_memory(memory_head, main_memory, process.process_id);
+        //memory_freed = true;
 
-        int total_exe_time = global_clock - process_start_times[process.process_id];
+        //int total_exe_time = global_clock - process_start_times[process.process_id];
+
+
 
         // Output process info
         std::cout << "Process ID: " << process.process_id << std::endl;
@@ -780,19 +789,26 @@ void execute_cpu(int start_address,int *main_memory,MemoryBlock *&memory_head,st
         std::cout << "Register Value: " << process.register_value << std::endl;
         std::cout << "Max Memory Needed: " << process.max_memory_needed << std::endl;
         std::cout << "Main Memory Base: " << process.main_memory_base << std::endl;
-        std::cout << "Total CPU Cycles Consumed: " << total_exe_time << std::endl;
+
+        int start_time = process_start_times[process.process_id];
+
+
+        std::cout << "Total CPU Cycles Consumed: " << process.cpu_cycles_used << std::endl;
 
         std::cout << "Process " << process.process_id
                   << " terminated. Entered running state at: "
-                  << process_start_times[process.process_id]
+                  << start_time
                   << ". Terminated at: "
                   << global_clock
                   << ". Total Execution Time: "
-                  << total_exe_time
+                  << (global_clock - start_time)
                   << "." << std::endl;
 
         std::cout << "Process " << process.process_id
                   << " terminated and freed memory blocks " << std::endl;
+
+        free_memory(memory_head, main_memory, process.process_id);
+        memory_freed = true;
 
     }
 
