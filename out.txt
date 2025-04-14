@@ -104,4 +104,10 @@ Process 5 waiting in NewJobQueue due to insufficient memory.
 97 : -1
 98 : -1
 99 : -1
+Total CPU time used: 2.
 
+Final segment table physical address:
+0 : 0
+1 : 422
+2 : 942
+3 : 1296

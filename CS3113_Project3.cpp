@@ -771,7 +771,7 @@ void execute_cpu(int start_address,int *main_memory,MemoryBlock *&memory_head,st
 
         std::cout << "Program Counter: " << physcial_to_logical(process.program_counter, process) << std::endl;
 
-        std::cout << "Instruction Base: " << physcial_to_logical(process.program_counter, process) << std::endl;
+        std::cout << "Instruction Base: " << physcial_to_logical(process.instruction_base, process) << std::endl;
 
         std::cout << "Data Base: " << physcial_to_logical(process.data_base, process) << std::endl;
 
