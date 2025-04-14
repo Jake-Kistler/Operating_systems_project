@@ -180,7 +180,7 @@ bool allocate_segments(MemoryBlock*& memory_head,int process_id,int total_memory
 void free_memory(MemoryBlock*& memory_head, int* main_memory, int process_id);
 void coalesce_memory(MemoryBlock*& memory_head);
 void load_jobs_to_memory(std::queue<PCB>& new_job_queue,std::queue<int>& ready_queue,int* main_memory,MemoryBlock*& memory_head);
-void execute_cpu(int start_address,int* main_memory,MemoryBlock*& memory_head,std::queue<PCB>& new_job_queue,std::queue<int>& ready_queue);
+bool execute_cpu(int start_address,int* main_memory,MemoryBlock*& memory_head,std::queue<PCB>& new_job_queue,std::queue<int>& ready_queue);
 void check_io_waiting_queue(std::queue<int>& ready_queue, int* main_memory);
 int translate_logical_to_physical(int logical_address, const PCB &pcb, bool load_store_flag = false);
 void copy_process_to_memory(int *logical_memory, int total_size, const PCB &pcb, int * main_memory);
@@ -266,17 +266,13 @@ int main(int argc, char **argv)
             int start_address = ready_queue.front();
             ready_queue.pop();
 
-            if(main_memory[start_address] < -1)
+            if(main_memory[start_address] == -1)
               continue;
 
-            execute_cpu(start_address, main_memory, memory_head, new_job_queue, ready_queue);
+            bool should_require = execute_cpu(start_address, main_memory, memory_head, new_job_queue, ready_queue);
 
-            // If a timeout occurred, re-add the process
-            if (timeout_occurred)
-            {
-                ready_queue.push(start_address);
-                timeout_occurred = false;
-            }
+           if(should_require)
+             ready_queue.push(start_address);
         }
         else
         {
@@ -614,7 +610,7 @@ int translate_logical_to_physical(int logical_address, const PCB &pcb, bool load
     return -1;
 }
 
-void execute_cpu(int start_address,int *main_memory,MemoryBlock *&memory_head,std::queue<PCB> &new_job_queue,std::queue<int> &ready_queue)
+bool execute_cpu(int start_address,int *main_memory,MemoryBlock *&memory_head,std::queue<PCB> &new_job_queue,std::queue<int> &ready_queue)
 {
 
     PCB process;
@@ -622,6 +618,12 @@ void execute_cpu(int start_address,int *main_memory,MemoryBlock *&memory_head,st
 
     int segment_table_size = main_memory[start_address]; // first value  = the segment table size
     int pcb_offset = start_address + segment_table_size + 1; // start of the PCB metadata
+
+    for(int i = 0; i < segment_table_size; ++i)
+      process.segment_table[i] = main_memory[start_address +1 + i];
+
+    process.segment_table_size = segment_table_size;
+    process.number_of_segments = segment_table_size / 2;
 
     process.process_id      = main_memory[pcb_offset + 0];
     process.state           = "READY";
@@ -704,7 +706,7 @@ void execute_cpu(int start_address,int *main_memory,MemoryBlock *&memory_head,st
                   process.state = "IOWAITING";
 
                   main_memory[pcb_offset  + 1] = state_encoding[process.state];
-                  return;
+                  return false;
                 }
                 break;
             }
@@ -758,21 +760,19 @@ void execute_cpu(int start_address,int *main_memory,MemoryBlock *&memory_head,st
                 break;
         }
 
+        process.program_counter++;
+        main_memory[pcb_offset  + 2] = process.program_counter;
+
+        param_offset += opcode_params[opcode];
+        param_offsets[process.process_id] = param_offset;
+
         if(cpu_cycles_this_run < cpu_allocated)
-          return;
+          return true;
+
 
         // process done update the final state
-        //process.program_counter = process.instruction_base - 1;
         process.state = "TERMINATED";
-       // main_memory[start_address + 2] = process.program_counter;
         main_memory[pcb_offset + 1] = state_encoding[process.state];
-
-        //free_memory(memory_head, main_memory, process.process_id);
-        //memory_freed = true;
-
-        //int total_exe_time = global_clock - process_start_times[process.process_id];
-
-
 
         // Output process info
         std::cout << "Process ID: " << process.process_id << std::endl;
@@ -810,9 +810,9 @@ void execute_cpu(int start_address,int *main_memory,MemoryBlock *&memory_head,st
         free_memory(memory_head, main_memory, process.process_id);
         memory_freed = true;
 
+        return false;
+
     }
-
-
 }
 
 void check_io_waiting_queue(std::queue<int>& ready_queue, int* main_memory)
